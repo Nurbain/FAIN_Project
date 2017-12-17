@@ -358,10 +358,33 @@ ListePoints* push_Front_Point(ListePoints* actualPoints, int x, int y){
 }
 
 
-ListePoints* Insert_Point(ListePoints* actualPoints, int x, int y){
+void FreeListPoints(ListePoints** actualPoints){
+	if (*actualPoints != NULL){
+
+		struct points *tmp = (*actualPoints)->p_head;
+		while (tmp != NULL)
+		{
+				struct points *del = tmp;
+				tmp = tmp->next;
+				free(del);
+		}
+		free(*actualPoints), *actualPoints = NULL;
+	}
+}
+
+void DrawNewPoints(Image *img, ListePoints* actualPoints,int x, int y){
+	I_bresenham(img, actualPoints->p_end->point.x,actualPoints->p_end->point.y,x,y);
+	push_Back_Point(actualPoints,x,y);
+}
+
+/*ListePoints* Insert_Point(ListePoints* actualPoints, int x, int y){
+
+	if(actualPoints != NULL){
+		struct points *newpoint = malloc(sizeof *newpoint);
+	}
 
 	return actualPoints;
-}
+}*/
 
 /*
 void freeNextListPoints(ListePoints* tab){

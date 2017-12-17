@@ -40,7 +40,7 @@ int _AllPoints[18] =
   388,96
 };
 
-ListePoints* PointsPolygone = NULL;
+ListePoints* PointsPolygone;
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est
@@ -71,12 +71,15 @@ void mouse_CB(int button, int state, int x, int y)
 		printf("mouse_CB : (%d,%d)\n", tmp_x, tmp_y);
 
 		if(!_isFirstClic) {
-			I_bresenham(img, _x, _y, tmp_x, tmp_y);
-		}
+      DrawNewPoints(img,PointsPolygone,tmp_x,tmp_y);
+		}else{
+      PointsPolygone = initListPoints();
+      push_Back_Point(PointsPolygone,tmp_x,tmp_y);
+    }
 
 
 		_x = tmp_x; _y = tmp_y;
-		_isFirstClic = !_isFirstClic;
+		_isFirstClic = 0;
 	}
 
 	glutPostRedisplay();
@@ -97,6 +100,7 @@ void keyboard_CB(unsigned char key, int x, int y)
 	case 'Z' : I_zoom(img,0.5); break;
 	case 'i' : I_zoomInit(img); break;
   case 'w' : DrawAllPoints(img,_AllPoints,_AllPointSize); break;
+  case 'c' : DrawNewPoints(img,PointsPolygone,PointsPolygone->p_head->point.x,PointsPolygone->p_head->point.y); break;
 	}
 
 	glutPostRedisplay();
@@ -136,6 +140,7 @@ int _clamp(int x, int inf, int sup)
 
 int main(int argc, char **argv)
 {
+
 	if((argc!=3)&&(argc!=2))
 	{
 		fprintf(stderr,"\n\nUsage \t: %s <width> <height>\nou",argv[0]);
@@ -213,6 +218,8 @@ int main(int argc, char **argv)
 
 		glutMainLoop();
 
+    FreeListPoints(PointsPolygone);
+    //FreeListPoints(PointsPolygone);
 		return 0;
 	}
 }

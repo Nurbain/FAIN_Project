@@ -56,10 +56,9 @@ Point P_new(int x, int y);
 ListePoints* initListPoints();
 ListePoints* push_Back_Point(ListePoints* actualPoints, int x, int y);
 ListePoints* push_Front_Point(ListePoints* actualPoints, int x, int y);
-ListePoints* Insert_Point(ListePoints* actualPoints, int x, int y);
-
-void freeNextListPoints(ListePoints* tab);
-void freePreviousListPoints(ListePoints* tab);
+void FreeListPoints(ListePoints** actualPoints);
+void DrawNewPoints(Image *img, ListePoints* actualPoints,int x, int y);
+void DrawListPoints(ListePoints* actualPoints);
 
 //####################### MAGICS FONCTIONS ##############################
 
@@ -97,7 +96,5 @@ void I_bresenham(Image *img, int xA, int yA, int xB, int yB);
 
 //Dessine les droites de bresenham suivant un tableau de point donnés
 void DrawAllPoints(Image *img, int points[], int pointsSize);
-
-void DrawListPoints(Image *img, int points[], int pointsSize);
 
 #endif

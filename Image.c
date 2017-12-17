@@ -297,7 +297,7 @@ void I_draw(Image *img)
 //Fonctions vu en TD
 
 //Dessine dans le 1er octant, x et y supposé y appartenant
-void I_bresenhamOrigin(Image *img, int x, int y){
+void I_bresenhamOrigin(Image *img, int x, int y) {
 	if (!img) {
 		return;
 	}
@@ -319,8 +319,9 @@ void I_bresenhamOrigin(Image *img, int x, int y){
 	} while (x_cur < x);
 }
 
+
 //Ramene une droite venant du Nieme octant dans le 1er
-void I_bresenhamZ2_to_1Oct(int xA, int yA, int xB, int yB, int *O1xA, int *O1yA, int *O1xB, int *O1yB){
+void I_bresenhamZ2_to_1Oct(int xA, int yA, int xB, int yB, int *O1xA, int *O1yA, int *O1xB, int *O1yB) {
 	int _O1xA = xA, _O1xB = xB, _O1yA = yA, _O1yB = yB;
 	int dx = xB-xA, dy = yB-yA;
 	if (dx < 0) {
@@ -344,7 +345,7 @@ void I_bresenhamZ2_to_1Oct(int xA, int yA, int xB, int yB, int *O1xA, int *O1yA,
 }
 
 //Ramene la droite du 1er octant a sa place d'origine
-void I_bresenham1Oct_to_Z2(int xA, int yA, int xB, int yB, int O1x, int O1y, int *x, int *y){
+void I_bresenham1Oct_to_Z2(int xA, int yA, int xB, int yB, int O1x, int O1y, int *x, int *y) {
 	int _x, _y;
 	if (abs(xB - xA) > abs(yB - yA)) {
 		_x = O1x; _y = O1y;
@@ -364,7 +365,7 @@ void I_bresenham1Oct_to_Z2(int xA, int yA, int xB, int yB, int O1x, int O1y, int
 }
 
 //Dessine la droite de bresenham
-void I_bresenham(Image *img, int xA, int yA, int xB, int yB){
+void I_bresenham(Image *img, int xA, int yA, int xB, int yB) {
 	if (!img) {
 		return;
 	}
@@ -384,4 +385,20 @@ void I_bresenham(Image *img, int xA, int yA, int xB, int yB){
 			O1y++; d+= incrd2;
 		}
 	} while (O1x < O1xB);
+}
+
+
+void DrawAllPoints(Image *img, int points[], int pointsSize){
+	if (!img) {
+		return;
+	}
+
+	if (pointsSize%2!=0) {
+		printf("Mauvaise longueur de point donné");
+		return;
+	}
+
+	for(int i=2;i<pointsSize;i=i+2){
+		I_bresenham(img,points[i-2],points[i-1],points[i],points[i+1]);
+	}
 }

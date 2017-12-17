@@ -19,11 +19,15 @@
 #include "Image.h"
 
 // Deux images de memes dimensions
-Image *img, *img2;
+Image *img , *img2;
+// Coordonnees du dernier clic de souris
+int _x = -1, _y = -1;
 
-//Bool pour savoir si c'est le 1er ou 2eme clic
+// Bool : premier ou second clic
 int _isFirstClic = 1;
 
+int _AllPointSize = 18;
+int _AllPoints[18] = {118,95,388,96,365,314,136,320,118,95,365,314,275,464,136,320,388,96};
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est
@@ -35,7 +39,7 @@ void display_CB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-	   I_draw(img);
+	I_draw(img);
 
     glutSwapBuffers();
 }
@@ -48,10 +52,19 @@ void display_CB()
 
 void mouse_CB(int button, int state, int x, int y)
 {
-	if((button==GLUT_LEFT_BUTTON)&&(state==GLUT_DOWN))
+	if((button==GLUT_LEFT_BUTTON)&&(state==GLUT_DOWN)) {
 		I_focusPoint(img,x,img->_height-y);
-    int tmp_x = x, tmp_y = img->_height-y;
-    I_bresenhamOrigin(img, tmp_x, tmp_y);
+		int tmp_x = x, tmp_y = img->_height-y;
+		printf("mouse_CB : (%d,%d)\n", tmp_x, tmp_y);
+
+		if(!_isFirstClic) {
+			I_bresenham(img, _x, _y, tmp_x, tmp_y);
+		}
+
+
+		_x = tmp_x; _y = tmp_y;
+		_isFirstClic = !_isFirstClic;
+	}
 
 	glutPostRedisplay();
 }
@@ -70,8 +83,9 @@ void keyboard_CB(unsigned char key, int x, int y)
 	case 'z' : I_zoom(img,2.0); break;
 	case 'Z' : I_zoom(img,0.5); break;
 	case 'i' : I_zoomInit(img); break;
-	default : fprintf(stderr,"keyboard_CB : %d : unknown key.\n",key);
+  case 'w' : DrawAllPoints(img,_AllPoints,_AllPointSize); break;
 	}
+
 	glutPostRedisplay();
 }
 
@@ -99,91 +113,93 @@ void special_CB(int key, int x, int y)
 }
 
 //------------------------------------------------------------------------
+
 int _clamp(int x, int inf, int sup)
 {
 	return (x<inf?inf:(x>sup?sup:x));
 }
 
+//------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-  if((argc!=3)&&(argc!=2))
-  {
-    fprintf(stderr,"\n\nUsage \t: %s <width> <height>\nou",argv[0]);
-    fprintf(stderr,"\t: %s <ppmfilename> \n\n",argv[0]);
-    exit(1);
-  }
-  else
-  {
-    int largeur, hauteur;
-    if(argc==2)
-    {
-      img = I_read(argv[1]);
-      largeur = img->_width;
-      hauteur = img->_height;
-      img2 = I_new(largeur, hauteur);
-    }
-    else
-    {
-      largeur = atoi(argv[1]);
-      hauteur = atoi(argv[2]);
-      img = I_new(largeur,hauteur);
-      img2 = I_new(largeur, hauteur);
+	if((argc!=3)&&(argc!=2))
+	{
+		fprintf(stderr,"\n\nUsage \t: %s <width> <height>\nou",argv[0]);
+		fprintf(stderr,"\t: %s <ppmfilename> \n\n",argv[0]);
+		exit(1);
+	}
+	else
+	{
+		int largeur, hauteur;
+		if(argc==2)
+		{
+			img = I_read(argv[1]);
+			largeur = img->_width;
+			hauteur = img->_height;
+			img2 = I_new(largeur, hauteur);
+		}
+		else
+		{
+			largeur = atoi(argv[1]);
+			hauteur = atoi(argv[2]);
+			img = I_new(largeur,hauteur);
+			img2 = I_new(largeur, hauteur);
 
-      /*Color rouge = C_new(100,0,0);
-      Color blanc = C_new(200,200,255);
-      I_checker(img,rouge,blanc,50);*/
+			/*Color rouge = C_new(100,0,0);
+			Color blanc = C_new(200,200,255);
+			I_checker(img,rouge,blanc,50);*/
 
 
-      /*
-      if(argc==3)
-      {
-        Color rouge = C_new(100,0,0);
-        Color blanc = C_new(200,200,255);
-        I_checker(img,rouge,blanc,50);
-      }
-      else
-      {
-        int xP = _clamp(atoi(argv[3]), 0, largeur);
-        int yP = _clamp(atoi(argv[4]), 0, hauteur);
-        if (argc==5) {
-          I_bresenhamOrigin(img, xP, yP);
-        }
-        else
-        {
-          int xQ = _clamp(atoi(argv[5]), 0, largeur);
-          int yQ = _clamp(atoi(argv[6]), 0, hauteur);
-          I_bresenham(img, xP, yP, xQ, yQ);
-        }
-      }
-      */
-    }
-    int windowPosX = 900, windowPosY = 100;
+			/*
+			if(argc==3)
+			{
+				Color rouge = C_new(100,0,0);
+				Color blanc = C_new(200,200,255);
+				I_checker(img,rouge,blanc,50);
+			}
+			else
+			{
+				int xP = _clamp(atoi(argv[3]), 0, largeur);
+				int yP = _clamp(atoi(argv[4]), 0, hauteur);
+				if (argc==5) {
+					I_bresenhamOrigin(img, xP, yP);
+				}
+				else
+				{
+					int xQ = _clamp(atoi(argv[5]), 0, largeur);
+					int yQ = _clamp(atoi(argv[6]), 0, hauteur);
+					I_bresenham(img, xP, yP, xQ, yQ);
+				}
+			}
+			*/
+		}
+		int windowPosX = 900, windowPosY = 100;
 
-    glutInitWindowSize(largeur,hauteur);
-    glutInitWindowPosition(windowPosX,windowPosY);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE );
-    glutInit(&argc, argv);
-    glutCreateWindow(argv[0]);
+		glutInitWindowSize(largeur,hauteur);
+		glutInitWindowPosition(windowPosX,windowPosY);
+		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE );
+		glutInit(&argc, argv);
+		glutCreateWindow(argv[0]);
 
-    glViewport(0, 0, largeur, hauteur);
+		glViewport(0, 0, largeur, hauteur);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 
-    glOrtho(0,largeur,0,hauteur,-1,1);
+		glOrtho(0,largeur,0,hauteur,-1,1);
 
-    glutDisplayFunc(display_CB);
-    glutKeyboardFunc(keyboard_CB);
-    glutSpecialFunc(special_CB);
-    glutMouseFunc(mouse_CB);
-    // glutMotionFunc(mouse_move_CB);
-    // glutPassiveMotionFunc(passive_mouse_move_CB);
+		glutDisplayFunc(display_CB);
+		glutKeyboardFunc(keyboard_CB);
+		glutSpecialFunc(special_CB);
+		glutMouseFunc(mouse_CB);
+		// glutMotionFunc(mouse_move_CB);
+		// glutPassiveMotionFunc(passive_mouse_move_CB);
 
-    glutMainLoop();
+		glutMainLoop();
 
-    return 0;
+		return 0;
 	}
 }

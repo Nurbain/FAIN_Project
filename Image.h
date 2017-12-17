@@ -39,6 +39,8 @@ typedef struct
 typedef struct
 { int x, y; } Point;
 
+Point P_new(int x, int y);
+
 
 //####################### MAGICS FONCTIONS ##############################
 
@@ -74,5 +76,7 @@ void I_bresenham1Oct_to_Z2(int xA, int yA, int xB, int yB, int O1x, int O1y, int
 //Dessine la droite de bresenham
 void I_bresenham(Image *img, int xA, int yA, int xB, int yB);
 
+//Dessine les droites de bresenham suivant un tableau de point donnés
+void DrawAllPoints(Image *img, int points[], int pointsSize);
 
 #endif

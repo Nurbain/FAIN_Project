@@ -27,7 +27,20 @@ int _x = -1, _y = -1;
 int _isFirstClic = 1;
 
 int _AllPointSize = 18;
-int _AllPoints[18] = {118,95,388,96,365,314,136,320,118,95,365,314,275,464,136,320,388,96};
+int _AllPoints[18] =
+{
+  118,95,
+  388,96,
+  365,314,
+  136,320,
+  118,95,
+  365,314,
+  275,464,
+  136,320,
+  388,96
+};
+
+ListePoints* PointsPolygone = NULL;
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est

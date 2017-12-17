@@ -290,12 +290,103 @@ void I_draw(Image *img)
 
 //------------------------------------------------------------------------
 
+Point P_new(int x, int y){
+	Point point;
+	point.x = x;
+	point.y = y;
+
+	return point;
+}
+
+ListePoints* initListPoints(){
+	ListePoints* newlist = malloc(sizeof *newlist);
+	if(newlist != NULL){
+		newlist->length = 0;
+		newlist->p_end = NULL;
+		newlist->p_head = NULL;
+	}
+
+	return newlist;
+}
+
+
+
+ListePoints* push_Back_Point(ListePoints* actualPoints, int x, int y){
+
+	if(actualPoints != NULL){
+		struct points *newpoint = malloc(sizeof *newpoint);
+		if(newpoint != NULL){
+			newpoint->point = P_new(x,y);
+			newpoint->next= NULL;
+			if(actualPoints->p_end == NULL){
+				newpoint->previous = NULL;
+				actualPoints->p_head = newpoint;
+				actualPoints->p_end = newpoint;
+			}
+			else{
+				actualPoints->p_end->next = newpoint;
+				newpoint->previous = actualPoints->p_end;
+				actualPoints->p_end = newpoint;
+			}
+			actualPoints->length++;
+		}
+	}
+	return actualPoints;
+}
+
+ListePoints* push_Front_Point(ListePoints* actualPoints, int x, int y){
+	if(actualPoints != NULL){
+		struct points *newpoint = malloc(sizeof *newpoint);
+		if(newpoint != NULL){
+			newpoint->point = P_new(x,y);
+			newpoint->previous = NULL;
+			if(actualPoints->p_end == NULL){
+				newpoint->next = NULL;
+				actualPoints->p_head = newpoint;
+				actualPoints->p_end = newpoint;
+			}
+			else{
+				actualPoints->p_head->previous = newpoint;
+				newpoint->next = actualPoints->p_head;
+				actualPoints->p_head = newpoint;
+			}
+			actualPoints->length++;
+		}
+	}
+
+	return actualPoints;
+}
+
+
+ListePoints* Insert_Point(ListePoints* actualPoints, int x, int y){
+
+	return actualPoints;
+}
+
+/*
+void freeNextListPoints(ListePoints* tab){
+	if(tab == NULL){
+		return;
+	}
+	freeListPoints(tab->next);
+	free(tab->point);
+	free(tab);
+}
+
+void freePreviousListPoints(ListePoints* tab){
+	if(tab == NULL){
+		return;
+	}
+	freeListPoints(tab->previous);
+	free(tab->point);
+	free(tab);
+}
+*/
 
 //------------------------------------------------------------------------
 //------------------- 	FONCTION BRESENHAM     ---------------------------
 //------------------------------------------------------------------------
 //Fonctions vu en TD
-
 //Dessine dans le 1er octant, x et y supposé y appartenant
 void I_bresenhamOrigin(Image *img, int x, int y) {
 	if (!img) {

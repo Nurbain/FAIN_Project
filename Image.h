@@ -37,10 +37,29 @@ typedef struct
 
 
 typedef struct
-{ int x, y; } Point;
+{ int x; int y; } Point;
+
+
+struct points{
+  Point point;
+  struct points* previous;
+  struct points* next;
+};
+
+typedef struct plist{
+	size_t length;
+	struct points *p_end;
+	struct points *p_head;
+} ListePoints;
 
 Point P_new(int x, int y);
+ListePoints* initListPoints();
+ListePoints* push_Back_Point(ListePoints* actualPoints, int x, int y);
+ListePoints* push_Front_Point(ListePoints* actualPoints, int x, int y);
+ListePoints* Insert_Point(ListePoints* actualPoints, int x, int y);
 
+void freeNextListPoints(ListePoints* tab);
+void freePreviousListPoints(ListePoints* tab);
 
 //####################### MAGICS FONCTIONS ##############################
 
@@ -78,5 +97,7 @@ void I_bresenham(Image *img, int xA, int yA, int xB, int yB);
 
 //Dessine les droites de bresenham suivant un tableau de point donnés
 void DrawAllPoints(Image *img, int points[], int pointsSize);
+
+void DrawListPoints(Image *img, int points[], int pointsSize);
 
 #endif

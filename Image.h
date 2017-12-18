@@ -106,9 +106,11 @@ ListePoints* insert_Point(ListePoints* list, int x, int y);
 
 //------------------ Séléction par clavier ------------------
 
-void selectSommet(Image* img,int x, int y);
+//Dessine le carré qui montre la selection
+void selectSommet(Image* img,int x, int y, Color* save);
 
-void deselectSommet(Image* img,int x, int y,Color c);
+//Redessine comme avant la selection du sommet 
+void deselectSommet(Image* img,int x, int y, Color* save);
 
 void MooveSommet(Points* Actuel, int direction);
 

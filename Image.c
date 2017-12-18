@@ -8,8 +8,6 @@
 
 //------------------------------------------------------------------------
 
-#define Size_Select 3
-
 Color C_new(float red, float green, float blue)
 {
 	Color c;
@@ -520,20 +518,28 @@ ListePoints* remove_Point(ListePoints* list, int x, int y){
 //TODO
 
 //------------------ Séléction par clavier ------------------
+#define Size_Select 3
 
-void selectSommet(Image* img,int x, int y){
+//Dessine le carré qui montre la selection
+void selectSommet(Image* img,int x, int y, Color* save){
 	Color c = C_new(255.f, 0.f, 0.f);
-	for(int j=x-Size_Select ; j<x+Size_Select;j++){
-		for(int i=y-Size_Select; i<y+Size_Select;i++){
+	int index = 0;
+	for(int j=x-3; j<x+3;j++){
+		for(int i=y-3; i<y+3;i++){
+			save[index] = img->_buffer[j][i];
+			index++;
 			I_plotColor(img,j,i,c);
 		}
 	}
 }
 
-void deselectSommet(Image* img,int x, int y,Color c){
-	for(int j=x-Size_Select ; j<x+Size_Select;j++){
-		for(int i=y-Size_Select; i<y+Size_Select;i++){
-			I_plotColor(img,j,i,c);
+//Redessine comme avant la selection du sommet 
+void deselectSommet(Image* img,int x, int y,Color* save){
+	int index = 0;
+	for(int j=x-3 ; j<x+3;j++){
+		for(int i=y-3; i<y+3;i++){
+			I_plotColor(img,j,i,save[index]);
+			index++;
 		}
 	}
 }

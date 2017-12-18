@@ -22,18 +22,25 @@
 #define VERTEX 1
 #define EDGE 2
 
+//Mode actif
 int _state = 0;
+
 // Deux images de memes dimensions
 Image *img , *img2;
+
 // Coordonnees du dernier clic de souris
 int _x = -1, _y = -1;
 
+
 // Bool : premier ou second clic
 int _isFirstClic = 1;
+
+// Bool : polygone fermé ou ouvert
 int _isClosed = 0;
 
+int _onselect = 0;
 
-
+// Donné de point rentré au début (Q1)
 int _AllPointSize = 18;
 int _AllPoints[18] =
 {
@@ -48,8 +55,14 @@ int _AllPoints[18] =
   388,96
 };
 
+// Structure utilisé
 ListePoints* PointsPolygone;
+
+// Point de selection
 Points* ActualPoint;
+
+#define Size_Select 3
+Color SaveSelection[6*6];
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est
@@ -114,7 +127,7 @@ void mouse_CB(int button, int state, int x, int y)
 
 void keyboard_CB(unsigned char key, int x, int y)
 {
-	// fprintf(stderr,"key=%d\n",key);
+	fprintf(stderr,"key=%d\n",key);
 	switch(key)
 	{
 	case 27 : exit(1); break;
@@ -139,20 +152,87 @@ void keyboard_CB(unsigned char key, int x, int y)
   //Passe en mode "append"
   case 'a' :
     _state = APPEND;
+
   break;
 
   //Passe en mode "vertex"
   case 'v' :
-    _state = VERTEX;
-    ActualPoint = PointsPolygone->head;
-    selectSommet(img,ActualPoint->point.x,ActualPoint->point.y);
+    if(PointsPolygone != NULL){
+      _state = VERTEX;
+      _onselect = 1;
+    }
+    if(ActualPoint == NULL)
+      ActualPoint = PointsPolygone->head;
+
+    deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+    selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
   break;
 
   //Passe en mode "edge"
   case 'e' :
     _state = EDGE;
   break;
+
+  //Touche "&"
+  case 38 :
+    switch (_state)
+    {
+      //Passe au sommet précedent
+      case VERTEX :
+
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+
+        if(ActualPoint->previous == NULL){
+          if(_isClosed){
+            ActualPoint = PointsPolygone->end;
+          }
+        }else
+          ActualPoint = ActualPoint->previous;
+
+        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+      break;
+    }
+  break;
+
+  //Touche "é"
+  case 233 :
+    switch (_state)
+    {
+      //Passe au sommet suivant
+      case VERTEX :
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+
+        if(ActualPoint->next == NULL){
+          if(_isClosed){
+            ActualPoint = PointsPolygone->head;
+          }
+        }else
+          ActualPoint = ActualPoint->next;
+
+        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+      break;
+    }
+  break;
+
+  //Suppr
+  case 127 :
+    switch (_state)
+    {
+      //Passe au sommet suivant
+      case VERTEX :
+        if(_onselect){
+          deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+          //I_bresenhamDelete(img,ActualPoint);
+          remove_Point(PointsPolygone, ActualPoint->point.x,ActualPoint->point.y);
+          DrawAllListPoints(img,PointsPolygone);
+          _onselect = 0;
+        }
+      break;
+    }
+  break;
 	}
+
+
 
 
 	glutPostRedisplay();
@@ -197,34 +277,11 @@ void special_CB(int key, int x, int y)
   //I_move(img,0,-d);
   break;
 	case GLUT_KEY_LEFT  :
-    switch (_state) {
-      case VERTEX :
-        if(ActualPoint->previous == NULL){
-          if(_isClosed){
-            ActualPoint = PointsPolygone->end;
-          }
-        }else
-          ActualPoint = ActualPoint->previous;
 
-        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y);
-      break;
-    }
   //I_move(img,d,0);
   break;
 	case GLUT_KEY_RIGHT :
-    switch (_state) {
 
-      case VERTEX :
-        if(ActualPoint->next == NULL){
-          if(_isClosed){
-            ActualPoint = PointsPolygone->head;
-          }
-        }else
-          ActualPoint = ActualPoint->next;
-
-        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y);
-      break;
-    }
   //I_move(img,-d,0); break;
   break;
 	default : fprintf(stderr,"special_CB : %d : unknown key.\n",key);

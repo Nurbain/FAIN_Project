@@ -40,25 +40,80 @@ typedef struct
 { int x; int y; } Point;
 
 
-struct points{
+typedef struct str_points{
   Point point;
-  struct points* previous;
-  struct points* next;
-};
+  struct str_points* previous;
+  struct str_points* next;
+} Points;
 
-typedef struct plist{
-	size_t length;
-	struct points *p_end;
-	struct points *p_head;
+typedef struct str_ListePoint{
+  int length;
+  struct str_points* head;
+  struct str_points* end;
 } ListePoints;
 
+//Création d'un point
 Point P_new(int x, int y);
+
+
+//------------------ Affiche ligne brisée ------------------
+//Dessine dans le 1er octant, x et y supposé y appartenant
+void I_bresenhamOrigin(Image *img, int x, int y);
+
+//Ramene une droite venant du Nieme octant dans le 1er
+void I_bresenhamZ2_to_1Oct(int xA, int yA, int xB, int yB, int *O1xA, int *O1yA, int *O1xB, int *O1yB);
+
+//Ramene la droite du 1er octant a sa place d'origine
+void I_bresenham1Oct_to_Z2(int xA, int yA, int xB, int yB, int O1x, int O1y, int *x, int *y);
+
+//Dessine la droite de bresenham
+void I_bresenham(Image *img, int xA, int yA, int xB, int yB);
+
+//Dessine les droites de bresenham suivant un tableau de point donnés
+void DrawAllPoints(Image *img, int points[], int pointsSize);
+
+
+//------------------ Dessin par souris ------------------
+
+//Dessine bresenham entre le dernier des points de la list et x,y
+void DrawNewPoints(Image *img, ListePoints* list,int x, int y);
+
+//Dessine toutes les bresenham de la liste
+void DrawAllListPoints(Image *img, ListePoints* list);
+
+//------------------ Remplissage scan-line ------------------
+
+//TODO
+
+//------------------ Insert et Suppr Sommets ------------------
+// Utilisation d'une liste doublement chainé
+
+//Init la liste chainée
 ListePoints* initListPoints();
-ListePoints* push_Back_Point(ListePoints* actualPoints, int x, int y);
-ListePoints* push_Front_Point(ListePoints* actualPoints, int x, int y);
-void FreeListPoints(ListePoints** actualPoints);
-void DrawNewPoints(Image *img, ListePoints* actualPoints,int x, int y);
-void DrawListPoints(ListePoints* actualPoints);
+
+//Ajoute un sommet a la fin
+ListePoints* push_Back_Point(ListePoints* list, int x, int y);
+
+//Supprime un sommet a la fin
+ListePoints* remove_Back_Point(ListePoints* list);
+
+//Supprime le sommet trouvé
+ListePoints* remove_Point(ListePoints* list, int x, int y);
+
+//Insert le sommet
+ListePoints* insert_Point(ListePoints* list, int x, int y);
+
+
+//------------------ Séléction par clavier ------------------
+
+void selectSommet(Image* img,int x, int y);
+
+void deselectSommet(Image* img,int x, int y,Color c);
+
+void MooveSommet(Points* Actuel, int direction);
+
+void I_bresenhamDelete(Image *img, Points* Actuel);
+
 
 //####################### MAGICS FONCTIONS ##############################
 
@@ -79,22 +134,5 @@ void I_move       (Image *img, int x, int y);
 
 void I_draw       (Image *img);
 
-
-//##################### FONCTION BRESENHAM ###############################
-
-//Dessine dans le 1er octant, x et y supposé y appartenant
-void I_bresenhamOrigin(Image *img, int x, int y);
-
-//Ramene une droite venant du Nieme octant dans le 1er
-void I_bresenhamZ2_to_1Oct(int xA, int yA, int xB, int yB, int *O1xA, int *O1yA, int *O1xB, int *O1yB);
-
-//Ramene la droite du 1er octant a sa place d'origine
-void I_bresenham1Oct_to_Z2(int xA, int yA, int xB, int yB, int O1x, int O1y, int *x, int *y);
-
-//Dessine la droite de bresenham
-void I_bresenham(Image *img, int xA, int yA, int xB, int yB);
-
-//Dessine les droites de bresenham suivant un tableau de point donnés
-void DrawAllPoints(Image *img, int points[], int pointsSize);
 
 #endif

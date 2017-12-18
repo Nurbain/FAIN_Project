@@ -18,6 +18,11 @@
 
 #include "Image.h"
 
+#define APPEND 0
+#define VERTEX 1
+#define EDGE 2
+
+int _state = 0;
 // Deux images de memes dimensions
 Image *img , *img2;
 // Coordonnees du dernier clic de souris
@@ -25,6 +30,9 @@ int _x = -1, _y = -1;
 
 // Bool : premier ou second clic
 int _isFirstClic = 1;
+int _isClosed = 0;
+
+
 
 int _AllPointSize = 18;
 int _AllPoints[18] =
@@ -41,6 +49,7 @@ int _AllPoints[18] =
 };
 
 ListePoints* PointsPolygone;
+Points* ActualPoint;
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est
@@ -52,7 +61,7 @@ void display_CB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-	I_draw(img);
+	  I_draw(img);
 
     glutSwapBuffers();
 }
@@ -70,16 +79,29 @@ void mouse_CB(int button, int state, int x, int y)
 		int tmp_x = x, tmp_y = img->_height-y;
 		printf("mouse_CB : (%d,%d)\n", tmp_x, tmp_y);
 
-		if(!_isFirstClic) {
-      DrawNewPoints(img,PointsPolygone,tmp_x,tmp_y);
-		}else{
-      PointsPolygone = initListPoints();
-      push_Back_Point(PointsPolygone,tmp_x,tmp_y);
+    switch (_state) {
+      case APPEND :
+        if(_isFirstClic) {
+          _x = tmp_x; _y = tmp_y;
+          PointsPolygone =  initListPoints();
+          push_Back_Point(PointsPolygone,tmp_x,tmp_y);
+        }else{
+          DrawNewPoints(img,PointsPolygone,tmp_x,tmp_y);
+          push_Back_Point(PointsPolygone,tmp_x,tmp_y);
+        }
+
+        _isFirstClic = 0;
+      break;
+
+      case VERTEX :
+        printf("COUCOU vertex\n" );
+      break;
+
+      case EDGE :
+        printf("COUCOU edge\n" );
+      break;
     }
 
-
-		_x = tmp_x; _y = tmp_y;
-		_isFirstClic = 0;
 	}
 
 	glutPostRedisplay();
@@ -99,9 +121,39 @@ void keyboard_CB(unsigned char key, int x, int y)
 	case 'z' : I_zoom(img,2.0); break;
 	case 'Z' : I_zoom(img,0.5); break;
 	case 'i' : I_zoomInit(img); break;
+  //Dessine la ligne brisé donné par une succesion de point
   case 'w' : DrawAllPoints(img,_AllPoints,_AllPointSize); break;
-  case 'c' : DrawNewPoints(img,PointsPolygone,PointsPolygone->p_head->point.x,PointsPolygone->p_head->point.y); break;
+
+  //Close le polygone
+  case 'c' :
+    if(_isClosed){
+      //TODO peut etre opti juste en effacant
+      I_fill(img, C_new(0.f, 0.f, 0.f));
+      DrawAllListPoints(img,PointsPolygone);
+    }else{
+      DrawNewPoints(img,PointsPolygone,PointsPolygone->head->point.x,PointsPolygone->head->point.y);
+    }
+    _isClosed =! _isClosed ;
+  break;
+
+  //Passe en mode "append"
+  case 'a' :
+    _state = APPEND;
+  break;
+
+  //Passe en mode "vertex"
+  case 'v' :
+    _state = VERTEX;
+    ActualPoint = PointsPolygone->head;
+    selectSommet(img,ActualPoint->point.x,ActualPoint->point.y);
+  break;
+
+  //Passe en mode "edge"
+  case 'e' :
+    _state = EDGE;
+  break;
 	}
+
 
 	glutPostRedisplay();
 }
@@ -116,14 +168,65 @@ void special_CB(int key, int x, int y)
 {
 	// int mod = glutGetModifiers();
 
-	int d = 10;
+	//int d = 10;
 
 	switch(key)
 	{
-	case GLUT_KEY_UP    : I_move(img,0,d); break;
-	case GLUT_KEY_DOWN  : I_move(img,0,-d); break;
-	case GLUT_KEY_LEFT  : I_move(img,d,0); break;
-	case GLUT_KEY_RIGHT : I_move(img,-d,0); break;
+	case GLUT_KEY_UP    :
+    switch (_state) {
+      case VERTEX:
+        I_bresenhamDelete(img,ActualPoint);
+        MooveSommet(ActualPoint,2);
+        I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+      break;
+    }
+
+  //I_move(img,0,d);
+  break;
+	case GLUT_KEY_DOWN  :
+    switch (_state) {
+      case VERTEX:
+        I_bresenhamDelete(img,ActualPoint);
+        MooveSommet(ActualPoint,4);
+        I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+      break;
+    }
+
+  //I_move(img,0,-d);
+  break;
+	case GLUT_KEY_LEFT  :
+    switch (_state) {
+      case VERTEX :
+        if(ActualPoint->previous == NULL){
+          if(_isClosed){
+            ActualPoint = PointsPolygone->end;
+          }
+        }else
+          ActualPoint = ActualPoint->previous;
+
+        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y);
+      break;
+    }
+  //I_move(img,d,0);
+  break;
+	case GLUT_KEY_RIGHT :
+    switch (_state) {
+
+      case VERTEX :
+        if(ActualPoint->next == NULL){
+          if(_isClosed){
+            ActualPoint = PointsPolygone->head;
+          }
+        }else
+          ActualPoint = ActualPoint->next;
+
+        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y);
+      break;
+    }
+  //I_move(img,-d,0); break;
+  break;
 	default : fprintf(stderr,"special_CB : %d : unknown key.\n",key);
 	}
 	glutPostRedisplay();
@@ -218,7 +321,7 @@ int main(int argc, char **argv)
 
 		glutMainLoop();
 
-    FreeListPoints(PointsPolygone);
+    //FreeListPoints(PointsPolygone);
     //FreeListPoints(PointsPolygone);
 		return 0;
 	}

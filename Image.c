@@ -8,6 +8,8 @@
 
 //------------------------------------------------------------------------
 
+#define Size_Select 3
+
 Color C_new(float red, float green, float blue)
 {
 	Color c;
@@ -288,7 +290,9 @@ void I_draw(Image *img)
 	glEnd();
 }
 
-//------------------------------------------------------------------------
+//###############################################################################
+//###############################################################################
+//###############################################################################
 
 Point P_new(int x, int y){
 	Point point;
@@ -298,118 +302,8 @@ Point P_new(int x, int y){
 	return point;
 }
 
-ListePoints* initListPoints(){
-	ListePoints* newlist = malloc(sizeof *newlist);
-	if(newlist != NULL){
-		newlist->length = 0;
-		newlist->p_end = NULL;
-		newlist->p_head = NULL;
-	}
+//------------------ Affiche ligne brisée ------------------
 
-	return newlist;
-}
-
-
-
-ListePoints* push_Back_Point(ListePoints* actualPoints, int x, int y){
-
-	if(actualPoints != NULL){
-		struct points *newpoint = malloc(sizeof *newpoint);
-		if(newpoint != NULL){
-			newpoint->point = P_new(x,y);
-			newpoint->next= NULL;
-			if(actualPoints->p_end == NULL){
-				newpoint->previous = NULL;
-				actualPoints->p_head = newpoint;
-				actualPoints->p_end = newpoint;
-			}
-			else{
-				actualPoints->p_end->next = newpoint;
-				newpoint->previous = actualPoints->p_end;
-				actualPoints->p_end = newpoint;
-			}
-			actualPoints->length++;
-		}
-	}
-	return actualPoints;
-}
-
-ListePoints* push_Front_Point(ListePoints* actualPoints, int x, int y){
-	if(actualPoints != NULL){
-		struct points *newpoint = malloc(sizeof *newpoint);
-		if(newpoint != NULL){
-			newpoint->point = P_new(x,y);
-			newpoint->previous = NULL;
-			if(actualPoints->p_end == NULL){
-				newpoint->next = NULL;
-				actualPoints->p_head = newpoint;
-				actualPoints->p_end = newpoint;
-			}
-			else{
-				actualPoints->p_head->previous = newpoint;
-				newpoint->next = actualPoints->p_head;
-				actualPoints->p_head = newpoint;
-			}
-			actualPoints->length++;
-		}
-	}
-
-	return actualPoints;
-}
-
-
-void FreeListPoints(ListePoints** actualPoints){
-	if (*actualPoints != NULL){
-
-		struct points *tmp = (*actualPoints)->p_head;
-		while (tmp != NULL)
-		{
-				struct points *del = tmp;
-				tmp = tmp->next;
-				free(del);
-		}
-		free(*actualPoints), *actualPoints = NULL;
-	}
-}
-
-void DrawNewPoints(Image *img, ListePoints* actualPoints,int x, int y){
-	I_bresenham(img, actualPoints->p_end->point.x,actualPoints->p_end->point.y,x,y);
-	push_Back_Point(actualPoints,x,y);
-}
-
-/*ListePoints* Insert_Point(ListePoints* actualPoints, int x, int y){
-
-	if(actualPoints != NULL){
-		struct points *newpoint = malloc(sizeof *newpoint);
-	}
-
-	return actualPoints;
-}*/
-
-/*
-void freeNextListPoints(ListePoints* tab){
-	if(tab == NULL){
-		return;
-	}
-	freeListPoints(tab->next);
-	free(tab->point);
-	free(tab);
-}
-
-void freePreviousListPoints(ListePoints* tab){
-	if(tab == NULL){
-		return;
-	}
-	freeListPoints(tab->previous);
-	free(tab->point);
-	free(tab);
-}
-*/
-
-//------------------------------------------------------------------------
-//------------------- 	FONCTION BRESENHAM     ---------------------------
-//------------------------------------------------------------------------
-//Fonctions vu en TD
 //Dessine dans le 1er octant, x et y supposé y appartenant
 void I_bresenhamOrigin(Image *img, int x, int y) {
 	if (!img) {
@@ -432,7 +326,6 @@ void I_bresenhamOrigin(Image *img, int x, int y) {
 		}
 	} while (x_cur < x);
 }
-
 
 //Ramene une droite venant du Nieme octant dans le 1er
 void I_bresenhamZ2_to_1Oct(int xA, int yA, int xB, int yB, int *O1xA, int *O1yA, int *O1xB, int *O1yB) {
@@ -501,7 +394,7 @@ void I_bresenham(Image *img, int xA, int yA, int xB, int yB) {
 	} while (O1x < O1xB);
 }
 
-
+//Dessine les droites de bresenham suivant un tableau de point donnés
 void DrawAllPoints(Image *img, int points[], int pointsSize){
 	if (!img) {
 		return;
@@ -515,4 +408,159 @@ void DrawAllPoints(Image *img, int points[], int pointsSize){
 	for(int i=2;i<pointsSize;i=i+2){
 		I_bresenham(img,points[i-2],points[i-1],points[i],points[i+1]);
 	}
+}
+
+
+//------------------ Dessin par souris ------------------
+
+//Dessine bresenham entre le dernier des points de la list et x,y
+void DrawNewPoints(Image *img, ListePoints* list,int x, int y){
+	I_bresenham(img, list->end->point.x,list->end->point.y,x,y);
+}
+
+//Dessine toutes les bresenham de la liste
+void DrawAllListPoints(Image *img, ListePoints* list){
+	if(list->length == 0){
+		return;
+	}
+
+	Points* tmp = list->head;
+	while(tmp->next != NULL){
+		I_bresenham(img, tmp->point.x,tmp->point.y,tmp->next->point.x,tmp->next->point.y);
+		tmp = tmp->next;
+	}
+}
+
+//------------------ Remplissage scan-line ------------------
+
+//TODO
+
+//------------------ Insert et Suppr Sommets ------------------
+// Utilisation d'une liste doublement chainé
+
+//Init la liste chainée
+ListePoints* initListPoints(){
+	ListePoints* newlist = malloc(sizeof *newlist);
+	if(newlist != NULL){
+		newlist->length = 0;
+		newlist->end = NULL;
+		newlist->head = NULL;
+	}
+	return newlist;
+}
+
+//Ajoute un sommet a la fin
+ListePoints* push_Back_Point(ListePoints* list, int x, int y){
+
+	if(list != NULL){
+		Points *newpoint = malloc(sizeof *newpoint);
+		if(newpoint != NULL){
+			newpoint->point = P_new(x,y);
+			newpoint->next= NULL;
+			if(list->end == NULL){
+				newpoint->previous = NULL;
+				list->head = newpoint;
+				list->end = newpoint;
+			}
+			else{
+				list->end->next = newpoint;
+				newpoint->previous = list->end;
+				list->end = newpoint;
+			}
+			list->length++;
+		}
+	}
+	return list;
+}
+
+//Supprime un sommet a la fin
+ListePoints* remove_Back_Point(ListePoints* list){
+	if(list != NULL){
+		Points* tmp = list->end;
+		list->end = tmp->previous;
+		list->end->next = NULL;
+		free(tmp);
+	}
+	return list;
+}
+
+//Supprime le sommet trouvé
+ListePoints* remove_Point(ListePoints* list, int x, int y){
+	if(list != NULL){
+		Points* tmp = list->head;
+		int found = 0;
+		while(tmp != NULL && !found){
+			if(tmp->point.x == x && tmp->point.y == y){
+				if(tmp->previous == NULL){
+					list->head = tmp->next;
+					list->head->previous = NULL;
+				}
+				else if(tmp->next == NULL){
+					list->end = tmp->previous;
+					list->end->next = NULL;
+				}
+				else{
+					tmp->previous->next = tmp->next;
+					tmp->next->previous = tmp->previous;
+				}
+				free(tmp);
+				list->length--;
+				found = 1;
+			}
+			else{
+				tmp = tmp->next;
+			}
+		}
+		return list;
+	}
+	return list;
+}
+
+//Insert le sommet
+//TODO
+
+//------------------ Séléction par clavier ------------------
+
+void selectSommet(Image* img,int x, int y){
+	Color c = C_new(255.f, 0.f, 0.f);
+	for(int j=x-Size_Select ; j<x+Size_Select;j++){
+		for(int i=y-Size_Select; i<y+Size_Select;i++){
+			I_plotColor(img,j,i,c);
+		}
+	}
+}
+
+void deselectSommet(Image* img,int x, int y,Color c){
+	for(int j=x-Size_Select ; j<x+Size_Select;j++){
+		for(int i=y-Size_Select; i<y+Size_Select;i++){
+			I_plotColor(img,j,i,c);
+		}
+	}
+}
+
+void MooveSommet(Points* Actuel, int direction){
+	switch (direction) {
+		case 1:
+			Actuel->point.x = Actuel->point.x-1;
+		break;
+		case 2:
+			Actuel->point.y = Actuel->point.y+1;
+		break;
+		case 3:
+			Actuel->point.x = Actuel->point.x+1;
+		break;
+		case 4:
+			Actuel->point.y = Actuel->point.y-1;
+		break;
+	}
+}
+
+void I_bresenhamDelete(Image *img, Points* ActualPoint){
+	Color tmp = img->_current_color;
+	img->_current_color = C_new(0.f, 0.f, 0.f);
+
+	I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+	I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+
+	img->_current_color = tmp;
 }

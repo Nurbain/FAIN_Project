@@ -106,16 +106,22 @@ ListePoints* insert_Point(ListePoints* list, int x, int y);
 
 //------------------ Séléction par clavier ------------------
 
+//VERTEX
 //Dessine le carré qui montre la selection
 void selectSommet(Image* img,int x, int y, Color* save);
 
-//Redessine comme avant la selection du sommet 
+//Redessine comme avant la selection du sommet
 void deselectSommet(Image* img,int x, int y, Color* save);
 
+//Bouge suivant la direction le x ou y du point actuel
 void MooveSommet(Points* Actuel, int direction);
 
+//Efface les lignes lié au point
 void I_bresenhamDelete(Image *img, Points* Actuel);
 
+//EDGE
+//Dessine le carré qui montre la selection
+void selectEdge(Image* img,int x, int y);
 
 //####################### MAGICS FONCTIONS ##############################
 

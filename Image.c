@@ -418,6 +418,7 @@ void DrawNewPoints(Image *img, ListePoints* list,int x, int y){
 
 //Dessine toutes les bresenham de la liste
 void DrawAllListPoints(Image *img, ListePoints* list){
+	I_fill(img, C_new(0.f, 0.f, 0.f));
 	if(list->length == 0){
 		return;
 	}
@@ -520,6 +521,7 @@ ListePoints* remove_Point(ListePoints* list, int x, int y){
 //------------------ Séléction par clavier ------------------
 #define Size_Select 3
 
+//VERTEX
 //Dessine le carré qui montre la selection
 void selectSommet(Image* img,int x, int y, Color* save){
 	Color c = C_new(255.f, 0.f, 0.f);
@@ -533,7 +535,7 @@ void selectSommet(Image* img,int x, int y, Color* save){
 	}
 }
 
-//Redessine comme avant la selection du sommet 
+//Redessine comme avant la selection du sommet
 void deselectSommet(Image* img,int x, int y,Color* save){
 	int index = 0;
 	for(int j=x-3 ; j<x+3;j++){
@@ -544,6 +546,7 @@ void deselectSommet(Image* img,int x, int y,Color* save){
 	}
 }
 
+//Bouge suivant la direction le x ou y du point actuel
 void MooveSommet(Points* Actuel, int direction){
 	switch (direction) {
 		case 1:
@@ -561,12 +564,25 @@ void MooveSommet(Points* Actuel, int direction){
 	}
 }
 
+//Efface les lignes lié au point
 void I_bresenhamDelete(Image *img, Points* ActualPoint){
+	if(ActualPoint == NULL)
+		return;
+
 	Color tmp = img->_current_color;
 	img->_current_color = C_new(0.f, 0.f, 0.f);
 
-	I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
-	I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+	if(ActualPoint->previous != NULL)
+		I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+
+	if(ActualPoint->next != NULL)
+		I_bresenham(img,ActualPoint->point.x,ActualPoint->point.y,ActualPoint->next->point.x,ActualPoint->next->point.y);
 
 	img->_current_color = tmp;
+}
+
+//EDGE
+//Dessine le carré qui montre la selection
+void selectEdge(Image* img,){
+
 }

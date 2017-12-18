@@ -58,8 +58,10 @@ int _AllPoints[18] =
 // Structure utilisé
 ListePoints* PointsPolygone;
 
-// Point de selection
+// Point de selection VERTEX
 Points* ActualPoint;
+
+// Points de selection EDGE
 
 #define Size_Select 3
 Color SaveSelection[6*6];
@@ -141,7 +143,6 @@ void keyboard_CB(unsigned char key, int x, int y)
   case 'c' :
     if(_isClosed){
       //TODO peut etre opti juste en effacant
-      I_fill(img, C_new(0.f, 0.f, 0.f));
       DrawAllListPoints(img,PointsPolygone);
     }else{
       DrawNewPoints(img,PointsPolygone,PointsPolygone->head->point.x,PointsPolygone->head->point.y);
@@ -222,9 +223,12 @@ void keyboard_CB(unsigned char key, int x, int y)
       case VERTEX :
         if(_onselect){
           deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
-          //I_bresenhamDelete(img,ActualPoint);
           remove_Point(PointsPolygone, ActualPoint->point.x,ActualPoint->point.y);
           DrawAllListPoints(img,PointsPolygone);
+          if(PointsPolygone!=NULL){
+            ActualPoint = PointsPolygone->head;
+            selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+          }
           _onselect = 0;
         }
       break;
@@ -255,10 +259,13 @@ void special_CB(int key, int x, int y)
 	case GLUT_KEY_UP    :
     switch (_state) {
       case VERTEX:
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         I_bresenhamDelete(img,ActualPoint);
         MooveSommet(ActualPoint,2);
-        I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
-        I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        if(ActualPoint->previous != NULL)
+          I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        if(ActualPoint->next != NULL)
+          I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
       break;
     }
 
@@ -267,21 +274,44 @@ void special_CB(int key, int x, int y)
 	case GLUT_KEY_DOWN  :
     switch (_state) {
       case VERTEX:
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         I_bresenhamDelete(img,ActualPoint);
         MooveSommet(ActualPoint,4);
-        I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
-        I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        if(ActualPoint->previous != NULL)
+          I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        if(ActualPoint->next != NULL)
+          I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
       break;
     }
 
   //I_move(img,0,-d);
   break;
 	case GLUT_KEY_LEFT  :
-
+    switch (_state) {
+      case VERTEX:
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+        I_bresenhamDelete(img,ActualPoint);
+        MooveSommet(ActualPoint,1);
+        if(ActualPoint->previous != NULL)
+          I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        if(ActualPoint->next != NULL)
+          I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+      break;
+    }
   //I_move(img,d,0);
   break;
 	case GLUT_KEY_RIGHT :
-
+    switch (_state) {
+      case VERTEX:
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+        I_bresenhamDelete(img,ActualPoint);
+        MooveSommet(ActualPoint,3);
+        if(ActualPoint->previous != NULL)
+          I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
+        if(ActualPoint->next != NULL)
+          I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
+      break;
+    }
   //I_move(img,-d,0); break;
   break;
 	default : fprintf(stderr,"special_CB : %d : unknown key.\n",key);

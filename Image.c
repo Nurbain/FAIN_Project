@@ -431,9 +431,86 @@ void DrawAllListPoints(Image *img, ListePoints* list){
 }
 
 //------------------ Remplissage scan-line ------------------
+int equalColor(Color c1, Color c2){
+	if(c1._red != c2._red || c1._blue != c2._blue || c1._green != c2._green){
+		return 0;
+	}
+	else return 1;
+}
 
-//TODO
+//Trouve la boundingBox du polygone
+void FindBoundingBox(ListePoints* list, Point* boundingBox){
+	if(list == NULL){
+		return;
+	}
 
+	int min_y = 800,min_x= 800,max_y= 0,max_x= 0;
+
+	Points* parcours = list->head;
+	while(parcours != NULL){
+		if(parcours->point.x <= min_x){
+			min_x = parcours->point.x-1;
+		}
+		if(parcours->point.y <= min_y){
+			min_y = parcours->point.y-1;
+		}
+		if(parcours->point.x >= max_x){
+			max_x = parcours->point.x+1;
+		}
+		if(parcours->point.y >= max_y){
+			max_y = parcours->point.y+1;
+		}
+
+		parcours = parcours->next;
+	}
+
+	boundingBox[0] = P_new(min_x,min_y);
+	boundingBox[1] = P_new(max_x,max_y);
+}
+
+
+//Probleme quand un sommet est sur plusieurs pixel
+//Remplie le polygone avec la méthode scan-line
+void fillByScanLine(Image *img,ListePoints* list){
+	Point boundingBox[2];
+	FindBoundingBox(list,boundingBox);
+
+	printf(" min : %d %d    max :%d %d\n", boundingBox[0].x,boundingBox[0].y,boundingBox[1].x,boundingBox[1].y);
+	int instersection = 0;
+	for(int j = boundingBox[0].y; j <= boundingBox[1].y ; j++){
+		instersection=0;
+		for(int i = boundingBox[0].x; i <= boundingBox[1].x ; i++){
+			if(!equalColor(img->_buffer[i][j],C_new(0.f,0.f,0.f))){
+				if(!isVertex(list,i,j)){
+					instersection++;
+					while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
+						i++;
+					}
+				}
+			}else{
+				if(instersection%2 == 1){
+					I_plot(img,i,j);
+				}
+			}
+		}
+	}
+
+}
+
+int isVertex(ListePoints* list, int x, int y){
+	if(list == NULL){
+		return 0;
+	}
+	Points* tmp = list->head;
+
+	while(tmp != NULL){
+		if(tmp->point.x == x && tmp->point.y == y)
+			return 1;
+		tmp = tmp->next;
+	}
+
+	return 0;
+}
 //------------------ Insert et Suppr Sommets ------------------
 // Utilisation d'une liste doublement chainé
 
@@ -537,6 +614,10 @@ void selectSommet(Image* img,int x, int y, Color* save){
 
 //Redessine comme avant la selection du sommet
 void deselectSommet(Image* img,int x, int y,Color* save){
+	if(save == NULL){
+		return;
+	}
+
 	int index = 0;
 	for(int j=x-3 ; j<x+3;j++){
 		for(int i=y-3; i<y+3;i++){
@@ -582,7 +663,29 @@ void I_bresenhamDelete(Image *img, Points* ActualPoint){
 }
 
 //EDGE
-//Dessine le carré qui montre la selection
-void selectEdge(Image* img,){
+//Dessine l'edge en couleur
+void selectEdge(Image* img){
+
+}
+
+//------------------ Séléction par souris ------------------
+
+//Choisi le point le plus pret
+Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y){
+	if(list == NULL || list->head == NULL){
+		return ActualPoint;
+	}
+	Points* save = list->head;
+	int space = fabs(save->point.x-x)+fabs(save->point.y-y);
+	while(save != NULL){
+		if((fabs(save->point.x-x)+fabs(save->point.y-y))<space){
+			printf("save : %d %d\n",save->point.x,save->point.y );
+			ActualPoint = save;
+			printf("Aprés : %d %d\n",ActualPoint->point.x,ActualPoint->point.y );
+		}
+		save = save->next;
+	}
+
+	return ActualPoint;
 
 }

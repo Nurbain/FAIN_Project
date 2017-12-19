@@ -109,7 +109,11 @@ void mouse_CB(int button, int state, int x, int y)
       break;
 
       case VERTEX :
-        printf("COUCOU vertex\n" );
+        printf("Selection par souris\n");
+        deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+        ActualPoint = closestVertex(PointsPolygone,ActualPoint,tmp_x,tmp_y);
+        printf("Aprés Selection: %d %d\n",ActualPoint->point.x,ActualPoint->point.y );
+        selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
       break;
 
       case EDGE :
@@ -149,6 +153,9 @@ void keyboard_CB(unsigned char key, int x, int y)
     }
     _isClosed =! _isClosed ;
   break;
+
+  case 'f' :
+    fillByScanLine(img,PointsPolygone);
 
   //Passe en mode "append"
   case 'a' :
@@ -221,7 +228,7 @@ void keyboard_CB(unsigned char key, int x, int y)
     {
       //Passe au sommet suivant
       case VERTEX :
-        if(_onselect){
+        if(ActualPoint != NULL){
           deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
           remove_Point(PointsPolygone, ActualPoint->point.x,ActualPoint->point.y);
           DrawAllListPoints(img,PointsPolygone);
@@ -229,7 +236,6 @@ void keyboard_CB(unsigned char key, int x, int y)
             ActualPoint = PointsPolygone->head;
             selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
           }
-          _onselect = 0;
         }
       break;
     }

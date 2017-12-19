@@ -82,9 +82,14 @@ void DrawNewPoints(Image *img, ListePoints* list,int x, int y);
 void DrawAllListPoints(Image *img, ListePoints* list);
 
 //------------------ Remplissage scan-line ------------------
+int equalColor(Color c1, Color c2);
 
-//TODO
+//Trouve la boundingBox du polygone
+void FindBoundingBox(ListePoints* list, Point* boundingBox);
 
+void fillByScanLine(Image *img, ListePoints* list);
+
+int isVertex(ListePoints* list, int x, int y);
 //------------------ Insert et Suppr Sommets ------------------
 // Utilisation d'une liste doublement chainé
 
@@ -121,7 +126,16 @@ void I_bresenhamDelete(Image *img, Points* Actuel);
 
 //EDGE
 //Dessine le carré qui montre la selection
-void selectEdge(Image* img,int x, int y);
+void selectEdge(Image* img);
+
+
+
+
+//------------------ Séléction par souris ------------------
+
+//Choisi le point le plus pret
+Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y);
+
 
 //####################### MAGICS FONCTIONS ##############################
 

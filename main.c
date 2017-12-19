@@ -61,10 +61,16 @@ ListePoints* PointsPolygone;
 // Point de selection VERTEX
 Points* ActualPoint;
 
-// Points de selection EDGE
-
+//Buffer de save avant selelction
 #define Size_Select 3
 Color SaveSelection[6*6];
+
+
+// Points de selection EDGE
+Points* EdgeSelect[2];
+
+
+
 //------------------------------------------------------------------
 //	C'est le display callback. A chaque fois qu'il faut
 //	redessiner l'image, c'est cette fonction qui est
@@ -179,6 +185,14 @@ void keyboard_CB(unsigned char key, int x, int y)
   //Passe en mode "edge"
   case 'e' :
     _state = EDGE;
+    if(EdgeSelect[0] != NULL || EdgeSelect[1] != NULL){
+      I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
+    }
+    if(PointsPolygone->length >=2){
+        EdgeSelect[0] = PointsPolygone->head;
+        EdgeSelect[1] = PointsPolygone->head->next;
+        selectEdge(img,EdgeSelect);
+    }
   break;
 
   //Touche "&"
@@ -198,6 +212,17 @@ void keyboard_CB(unsigned char key, int x, int y)
           ActualPoint = ActualPoint->previous;
 
         selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+      break;
+
+      //Passe a l'edge précedente
+      //TODO si closed et voir pourquoi change pas direct 
+      case EDGE :
+        if(EdgeSelect[1]->previous != NULL){
+          I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
+          EdgeSelect[0] = EdgeSelect[1];
+          EdgeSelect[1] = EdgeSelect[1]->previous;
+          selectEdge(img,EdgeSelect);
+        }
       break;
     }
   break;
@@ -219,6 +244,16 @@ void keyboard_CB(unsigned char key, int x, int y)
 
         selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
       break;
+
+      //Passe a l'edge suivante
+      case EDGE :
+        if(EdgeSelect[1]->next != NULL){
+          I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
+          EdgeSelect[0] = EdgeSelect[1];
+          EdgeSelect[1] = EdgeSelect[1]->next;
+          selectEdge(img,EdgeSelect);
+        }
+      break;
     }
   break;
 
@@ -238,6 +273,9 @@ void keyboard_CB(unsigned char key, int x, int y)
           }
         }
       break;
+
+      default :
+        printf("Pas possible dans ce mode \n");
     }
   break;
 	}

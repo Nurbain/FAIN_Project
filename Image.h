@@ -126,7 +126,7 @@ void I_bresenhamDelete(Image *img, Points* Actuel);
 
 //EDGE
 //Dessine le carré qui montre la selection
-void selectEdge(Image* img);
+void selectEdge(Image* img,Points** edgePoint);
 
 
 

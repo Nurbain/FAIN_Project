@@ -470,6 +470,7 @@ void FindBoundingBox(ListePoints* list, Point* boundingBox){
 
 
 //Probleme quand un sommet est sur plusieurs pixel
+//Sommet sur l'horizontale vérifier que les précédents et suivant sont de chaque coté
 //Remplie le polygone avec la méthode scan-line
 void fillByScanLine(Image *img,ListePoints* list){
 	Point boundingBox[2];
@@ -664,8 +665,14 @@ void I_bresenhamDelete(Image *img, Points* ActualPoint){
 
 //EDGE
 //Dessine l'edge en couleur
-void selectEdge(Image* img){
+void selectEdge(Image* img,Points** edgePoint){
 
+	Color tmp = img->_current_color;
+	img->_current_color = C_new(255.f, 0.f, 0.f);
+
+	I_bresenham(img,edgePoint[0]->point.x,edgePoint[0]->point.y,edgePoint[1]->point.x,edgePoint[1]->point.y);
+
+	img->_current_color = tmp;
 }
 
 //------------------ Séléction par souris ------------------

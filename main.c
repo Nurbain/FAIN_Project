@@ -129,6 +129,13 @@ void mouse_CB(int button, int state, int x, int y)
 
 	}
 
+  if((button==GLUT_MIDDLE_BUTTON)&&(state==GLUT_DOWN)) {
+    if(_state == EDGE){
+      //insert_Point(PointsPolygone,EdgeSelect,1);
+      DrawAllListPoints(img,PointsPolygone);
+    }
+  }
+
 	glutPostRedisplay();
 }
 
@@ -139,6 +146,7 @@ void mouse_CB(int button, int state, int x, int y)
 
 void keyboard_CB(unsigned char key, int x, int y)
 {
+  //TODO supression de selection tout le temps 
 	fprintf(stderr,"key=%d\n",key);
 	switch(key)
 	{
@@ -215,12 +223,12 @@ void keyboard_CB(unsigned char key, int x, int y)
       break;
 
       //Passe a l'edge précedente
-      //TODO si closed et voir pourquoi change pas direct 
+      //TODO si closed
       case EDGE :
-        if(EdgeSelect[1]->previous != NULL){
+        if(EdgeSelect[0]->previous != NULL){
           I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
-          EdgeSelect[0] = EdgeSelect[1];
-          EdgeSelect[1] = EdgeSelect[1]->previous;
+          EdgeSelect[1] = EdgeSelect[0];
+          EdgeSelect[0] = EdgeSelect[0]->previous;
           selectEdge(img,EdgeSelect);
         }
       break;

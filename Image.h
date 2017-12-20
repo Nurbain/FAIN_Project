@@ -90,6 +90,7 @@ void FindBoundingBox(ListePoints* list, Point* boundingBox);
 void fillByScanLine(Image *img, ListePoints* list);
 
 int isVertex(ListePoints* list, int x, int y);
+
 //------------------ Insert et Suppr Sommets ------------------
 // Utilisation d'une liste doublement chainé
 
@@ -106,7 +107,7 @@ ListePoints* remove_Back_Point(ListePoints* list);
 ListePoints* remove_Point(ListePoints* list, int x, int y);
 
 //Insert le sommet
-ListePoints* insert_Point(ListePoints* list, int x, int y);
+ListePoints* insert_Point(ListePoints* list, Points** edgePoint, int WheretoLook);
 
 
 //------------------ Séléction par clavier ------------------

@@ -38,7 +38,6 @@ int _isFirstClic = 1;
 // Bool : polygone fermé ou ouvert
 int _isClosed = 0;
 
-int _onselect = 0;
 
 // Donné de point rentré au début (Q1)
 int _AllPointSize = 18;
@@ -131,8 +130,9 @@ void mouse_CB(int button, int state, int x, int y)
 
   if((button==GLUT_MIDDLE_BUTTON)&&(state==GLUT_DOWN)) {
     if(_state == EDGE){
-      //insert_Point(PointsPolygone,EdgeSelect,1);
+      insert_Point(PointsPolygone,EdgeSelect);
       DrawAllListPoints(img,PointsPolygone);
+      selectEdge(img,EdgeSelect);
     }
   }
 
@@ -146,7 +146,7 @@ void mouse_CB(int button, int state, int x, int y)
 
 void keyboard_CB(unsigned char key, int x, int y)
 {
-  //TODO supression de selection tout le temps 
+  //TODO supression de selection tout le temps
 	fprintf(stderr,"key=%d\n",key);
 	switch(key)
 	{
@@ -169,6 +169,7 @@ void keyboard_CB(unsigned char key, int x, int y)
   break;
 
   case 'f' :
+  //TODO interdire quand ouvert
     fillByScanLine(img,PointsPolygone);
 
   //Passe en mode "append"
@@ -181,7 +182,6 @@ void keyboard_CB(unsigned char key, int x, int y)
   case 'v' :
     if(PointsPolygone != NULL){
       _state = VERTEX;
-      _onselect = 1;
     }
     if(ActualPoint == NULL)
       ActualPoint = PointsPolygone->head;

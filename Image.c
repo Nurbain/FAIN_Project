@@ -594,43 +594,33 @@ ListePoints* remove_Point(ListePoints* list, int x, int y){
 }
 
 //Insert le sommet
-ListePoints* insert_Point(ListePoints* list, Points** edgePoint, int WheretoLook){
+ListePoints* insert_Point(ListePoints* list, Points** edgePoint){
 	if(list == NULL ||edgePoint == NULL){
 		return list;
 	}
 
 	Points* tmp = list->head;
-	switch (WheretoLook) {
-		//regarde next
-		case 1:
-
-			while(tmp != NULL){
-				if(tmp->point.x == edgePoint[0]->point.x && tmp->point.y == edgePoint[0]->point.y){
-					if(tmp->next != NULL && tmp->next->point.x == edgePoint[1]->point.x && tmp->next->point.y == edgePoint[1]->point.y){
-						Points *newpoint = malloc(sizeof *newpoint);
-						if(newpoint != NULL){
-							int x = (edgePoint[0]->point.x + edgePoint[1]->point.x) /2;
-							int y = (edgePoint[0]->point.y + edgePoint[1]->point.y) /2;
-							newpoint->point = P_new(x,y);
-							newpoint->previous = tmp;
-							newpoint->next = tmp->next;
-							tmp->next = newpoint;
-							tmp->next->previous = newpoint;
-							return list;
-						}
-						return list;
-					}
+	while(tmp != NULL){
+		if(tmp->point.x == edgePoint[0]->point.x && tmp->point.y == edgePoint[0]->point.y){
+			if(tmp->next != NULL && tmp->next->point.x == edgePoint[1]->point.x && tmp->next->point.y == edgePoint[1]->point.y){
+				Points *newpoint = malloc(sizeof *newpoint);
+				if(newpoint != NULL){
+					int x = (edgePoint[0]->point.x + edgePoint[1]->point.x) /2;
+					int y = (edgePoint[0]->point.y + edgePoint[1]->point.y) /2;
+					newpoint->point = P_new(x,y);
+					tmp->next->previous = newpoint;
+					newpoint->next = tmp->next;
+					tmp->next = newpoint;
+					newpoint->previous = tmp;
+					edgePoint[1]=newpoint;
+					return list;
 				}
-				tmp = tmp->next;
+				return list;
 			}
-			return list;
-		break;
-
-		case -1:
-
-		//regarde previous
-		break;
+		}
+		tmp = tmp->next;
 	}
+	return list;
 }
 
 //------------------ Séléction par clavier ------------------

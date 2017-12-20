@@ -107,7 +107,7 @@ ListePoints* remove_Back_Point(ListePoints* list);
 ListePoints* remove_Point(ListePoints* list, int x, int y);
 
 //Insert le sommet
-ListePoints* insert_Point(ListePoints* list, Points** edgePoint, int WheretoLook);
+ListePoints* insert_Point(ListePoints* list, Points** edgePoint);
 
 
 //------------------ Séléction par clavier ------------------

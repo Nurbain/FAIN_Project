@@ -28,10 +28,6 @@ int _state = 0;
 // Deux images de memes dimensions
 Image *img , *img2;
 
-// Coordonnees du dernier clic de souris
-int _x = -1, _y = -1;
-
-
 // Bool : premier ou second clic
 int _isFirstClic = 1;
 
@@ -66,7 +62,7 @@ Color SaveSelection[6*6];
 
 
 // Points de selection EDGE
-Points* EdgeSelect[2];
+Points* EdgeSelect[2] = {NULL,NULL};
 
 
 
@@ -97,19 +93,17 @@ void mouse_CB(int button, int state, int x, int y)
 	if((button==GLUT_LEFT_BUTTON)&&(state==GLUT_DOWN)) {
 		I_focusPoint(img,x,img->_height-y);
 		int tmp_x = x, tmp_y = img->_height-y;
-		printf("mouse_CB : (%d,%d)\n", tmp_x, tmp_y);
 
+    //DIFFERENT MODE
     switch (_state) {
       case APPEND :
         if(_isFirstClic) {
-          _x = tmp_x; _y = tmp_y;
           PointsPolygone =  initListPoints();
           push_Back_Point(PointsPolygone,tmp_x,tmp_y);
         }else{
           DrawNewPoints(img,PointsPolygone,tmp_x,tmp_y);
           push_Back_Point(PointsPolygone,tmp_x,tmp_y);
         }
-
         _isFirstClic = 0;
       break;
 
@@ -120,7 +114,7 @@ void mouse_CB(int button, int state, int x, int y)
       break;
 
       case EDGE :
-        printf("COUCOU edge\n" );
+        printf("Séléection par souris des edges qui manque\n" );
       break;
     }
 
@@ -157,8 +151,8 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   //Close le polygone
   case 'c' :
+
     if(_isClosed){
-      //TODO peut etre opti juste en effacant
       DrawAllListPoints(img,PointsPolygone);
     }else{
       DrawNewPoints(img,PointsPolygone,PointsPolygone->head->point.x,PointsPolygone->head->point.y);
@@ -167,8 +161,10 @@ void keyboard_CB(unsigned char key, int x, int y)
   break;
 
   case 'f' :
-  //TODO interdire quand ouvert
-    fillByScanLine(img,PointsPolygone);
+    if(_isClosed)
+      fillByScanLine(img,PointsPolygone);
+    else
+      printf("Fermé le polygone avant de le remplir !\n" );
 
   //Passe en mode "append"
   case 'a' :
@@ -178,6 +174,13 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   //Passe en mode "vertex"
   case 'v' :
+    if(!_isClosed)
+      DrawAllListPoints(img,PointsPolygone);
+    else{
+      DrawAllListPoints(img,PointsPolygone);
+      DrawNewPoints(img,PointsPolygone,PointsPolygone->head->point.x,PointsPolygone->head->point.y);
+    }
+
     if(PointsPolygone != NULL){
       _state = VERTEX;
     }
@@ -190,11 +193,16 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   //Passe en mode "edge"
   case 'e' :
-    _state = EDGE;
-    if(EdgeSelect[0] != NULL || EdgeSelect[1] != NULL){
-      I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
+    if(_isClosed){
+      DrawAllListPoints(img,PointsPolygone);
+      _isClosed = !_isClosed;
     }
-    if(PointsPolygone->length >=2){
+
+    _state = EDGE;
+    if(EdgeSelect[0] != NULL && EdgeSelect[1] != NULL){
+      selectEdge(img,EdgeSelect);
+    }
+    else if(PointsPolygone->length >=2){
         EdgeSelect[0] = PointsPolygone->head;
         EdgeSelect[1] = PointsPolygone->head->next;
         selectEdge(img,EdgeSelect);

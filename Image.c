@@ -413,16 +413,20 @@ void DrawAllPoints(Image *img, int points[], int pointsSize){
 
 //Dessine bresenham entre le dernier des points de la list et x,y
 void DrawNewPoints(Image *img, ListePoints* list,int x, int y){
+	if(list == NULL){
+		return;
+	}
+
 	I_bresenham(img, list->end->point.x,list->end->point.y,x,y);
 }
 
 //Dessine toutes les bresenham de la liste
 void DrawAllListPoints(Image *img, ListePoints* list){
-	I_fill(img, C_new(0.f, 0.f, 0.f));
-	if(list->length == 0){
+	if(list == NULL || list->length < 2){
 		return;
 	}
 
+	I_fill(img, C_new(0.f, 0.f, 0.f));
 	Points* tmp = list->head;
 	while(tmp->next != NULL){
 		I_bresenham(img, tmp->point.x,tmp->point.y,tmp->next->point.x,tmp->next->point.y);
@@ -498,6 +502,7 @@ void fillByScanLine(Image *img,ListePoints* list){
 
 }
 
+//Verifie que le point donné est un somet de la liste
 int isVertex(ListePoints* list, int x, int y){
 	if(list == NULL){
 		return 0;
@@ -512,6 +517,7 @@ int isVertex(ListePoints* list, int x, int y){
 
 	return 0;
 }
+
 //------------------ Insert et Suppr Sommets ------------------
 // Utilisation d'une liste doublement chainé
 
@@ -547,6 +553,7 @@ ListePoints* push_Back_Point(ListePoints* list, int x, int y){
 			list->length++;
 		}
 	}
+
 	return list;
 }
 
@@ -602,6 +609,7 @@ ListePoints* insert_Point(ListePoints* list, Points** edgePoint){
 	Points* tmp = list->head;
 	while(tmp != NULL){
 		if(tmp->point.x == edgePoint[0]->point.x && tmp->point.y == edgePoint[0]->point.y){
+			//On verfifie que le point suivant est bien celui donné en argument
 			if(tmp->next != NULL && tmp->next->point.x == edgePoint[1]->point.x && tmp->next->point.y == edgePoint[1]->point.y){
 				Points *newpoint = malloc(sizeof *newpoint);
 				if(newpoint != NULL){
@@ -631,8 +639,8 @@ ListePoints* insert_Point(ListePoints* list, Points** edgePoint){
 void selectSommet(Image* img,int x, int y, Color* save){
 	Color c = C_new(255.f, 0.f, 0.f);
 	int index = 0;
-	for(int j=x-3; j<x+3;j++){
-		for(int i=y-3; i<y+3;i++){
+	for(int j=x-Size_Select; j<x+Size_Select;j++){
+		for(int i=y-Size_Select; i<y+Size_Select;i++){
 			save[index] = img->_buffer[j][i];
 			index++;
 			I_plotColor(img,j,i,c);
@@ -647,8 +655,8 @@ void deselectSommet(Image* img,int x, int y,Color* save){
 	}
 
 	int index = 0;
-	for(int j=x-3 ; j<x+3;j++){
-		for(int i=y-3; i<y+3;i++){
+	for(int j=x-Size_Select ; j<x+Size_Select;j++){
+		for(int i=y-Size_Select; i<y+Size_Select;i++){
 			I_plotColor(img,j,i,save[index]);
 			index++;
 		}
@@ -703,12 +711,13 @@ void selectEdge(Image* img,Points** edgePoint){
 }
 
 //------------------ Séléction par souris ------------------
+//Calcul la distance euclidienne entre deux point
 float distanceVertex(Point a, Point b){
 	float distance = (a.x-b.x) * (a.x-b.x) + (a.y-b.y) * (a.y-b.y);
 	return sqrt(distance);
 }
 
-//Choisi le point le plus pret
+//Choisi le point le plus pret de coordonées données
 Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y){
 	if(list == NULL || list->head == NULL){
 		return ActualPoint;
@@ -725,12 +734,11 @@ Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y){
 		}
 		save = save->next;
 	}
-
-	printf("Sommet le plus proche : %d %d \n", ActualPoint->point.x , ActualPoint->point.y);
 	return ActualPoint;
 }
 
 
+//Choisi la droite la plus pret d'un point
 void closestEdge(ListePoints* list, Points** edgePoint, int x, int y){
 
 }

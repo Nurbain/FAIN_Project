@@ -193,6 +193,11 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   //Passe en mode "edge"
   case 'e' :
+    //TODO SUppresion de point du coup faire gaffe faire une fonction find point
+    if(ActualPoint != NULL){
+      deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
+    }
+
     if(_isClosed){
       DrawAllListPoints(img,PointsPolygone);
       _isClosed = !_isClosed;
@@ -229,7 +234,6 @@ void keyboard_CB(unsigned char key, int x, int y)
       break;
 
       //Passe a l'edge précedente
-      //TODO si closed
       case EDGE :
         if(EdgeSelect[0]->previous != NULL){
           I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
@@ -466,8 +470,10 @@ int main(int argc, char **argv)
 
 		glutMainLoop();
 
-    //FreeListPoints(PointsPolygone);
-    //FreeListPoints(PointsPolygone);
+    //TODO FREE point Polygone 
+    free(ActualPoint);
+    free(EdgeSelect[0]);
+    free(EdgeSelect[1]);
 		return 0;
 	}
 }

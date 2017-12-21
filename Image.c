@@ -703,23 +703,34 @@ void selectEdge(Image* img,Points** edgePoint){
 }
 
 //------------------ Séléction par souris ------------------
+float distanceVertex(Point a, Point b){
+	float distance = (a.x-b.x) * (a.x-b.x) + (a.y-b.y) * (a.y-b.y);
+	return sqrt(distance);
+}
 
 //Choisi le point le plus pret
 Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y){
 	if(list == NULL || list->head == NULL){
 		return ActualPoint;
 	}
+	Point clicMouse = P_new(x,y);
 	Points* save = list->head;
-	int space = fabs(save->point.x-x)+fabs(save->point.y-y);
+	ActualPoint = save;
+	float minDistance = distanceVertex(save->point,clicMouse);
 	while(save != NULL){
-		if((fabs(save->point.x-x)+fabs(save->point.y-y))<space){
-			printf("save : %d %d\n",save->point.x,save->point.y );
+		float tmpDistance = distanceVertex(save->point,clicMouse);
+		if(tmpDistance<minDistance){
+			minDistance = tmpDistance;
 			ActualPoint = save;
-			printf("Aprés : %d %d\n",ActualPoint->point.x,ActualPoint->point.y );
 		}
 		save = save->next;
 	}
 
+	printf("Sommet le plus proche : %d %d \n", ActualPoint->point.x , ActualPoint->point.y);
 	return ActualPoint;
+}
+
+
+void closestEdge(ListePoints* list, Points** edgePoint, int x, int y){
 
 }

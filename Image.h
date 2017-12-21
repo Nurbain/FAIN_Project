@@ -137,6 +137,7 @@ void selectEdge(Image* img,Points** edgePoint);
 //Choisi le point le plus pret
 Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y);
 
+void closestEdge(ListePoints* list, Points** edgePoint, int x, int y);
 
 //####################### MAGICS FONCTIONS ##############################
 

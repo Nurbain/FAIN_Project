@@ -162,7 +162,7 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   case 'f' :
     if(_isClosed)
-      fillByScanLine(img,PointsPolygone);
+      fill(img,PointsPolygone);
     else
       printf("Fermé le polygone avant de le remplir !\n" );
 
@@ -470,7 +470,7 @@ int main(int argc, char **argv)
 
 		glutMainLoop();
 
-    //TODO FREE point Polygone 
+    //TODO FREE point Polygone
     free(ActualPoint);
     free(EdgeSelect[0]);
     free(EdgeSelect[1]);

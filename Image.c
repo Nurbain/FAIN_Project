@@ -453,16 +453,16 @@ void FindBoundingBox(ListePoints* list, Point* boundingBox){
 	Points* parcours = list->head;
 	while(parcours != NULL){
 		if(parcours->point.x <= min_x){
-			min_x = parcours->point.x-1;
+			min_x = parcours->point.x;
 		}
 		if(parcours->point.y <= min_y){
-			min_y = parcours->point.y-1;
+			min_y = parcours->point.y;
 		}
 		if(parcours->point.x >= max_x){
-			max_x = parcours->point.x+1;
+			max_x = parcours->point.x;
 		}
 		if(parcours->point.y >= max_y){
-			max_y = parcours->point.y+1;
+			max_y = parcours->point.y;
 		}
 
 		parcours = parcours->next;
@@ -472,6 +472,191 @@ void FindBoundingBox(ListePoints* list, Point* boundingBox){
 	boundingBox[1] = P_new(max_x,max_y);
 }
 
+int InterieurPloygone(Image *img,ListePoints* list, Point p, int xMax){
+	int instersection = 0;
+	for(int i = p.x ; i <= xMax ; i++){
+		//Interescte un point autre que noir
+		if(!equalColor(img->_buffer[i][p.y],C_new(0.f,0.f,0.f))){
+			Points* sommet = isVertex(list, i, p.y);
+			// Interesction de sommet
+			if(sommet != NULL){
+				//2.3 document du prof
+				if(sommet->previous == NULL && sommet->next == NULL){
+					printf("Y'a qu'un sommet la");
+				}else if(sommet->previous == NULL){ //si tete
+					if(sommet->point.y >= list->end->point.y)
+						instersection++;
+					if(sommet->point.y >= sommet->next->point.y)
+						instersection++;
+				}else if(sommet->next == NULL){//si queue
+					if(sommet->point.y >= sommet->previous->point.y)
+						instersection++;
+					if(sommet->point.y >= list->head->point.y)
+						instersection++;
+				}
+				else{
+					if(sommet->point.y >= sommet->previous->point.y)
+						instersection++;
+					if(sommet->point.y >= sommet->next->point.y)
+						instersection++;
+				}
+			}else // Interesection banale
+				instersection++;
+
+			//Evite quand une ligne est sur plusieurs pixel
+			while(!equalColor(img->_buffer[i+1][p.y],C_new(0.f,0.f,0.f))){
+				i++;
+			}
+		}
+
+	}
+	if(instersection%2 == 1){
+		return 1;
+	}
+
+	return 0;
+}
+
+int IntersectSuperieur(ListePoints* list, Points* sommet){
+	if(sommet != NULL){
+		//2.3 document du prof
+		if(sommet->previous == NULL && sommet->next == NULL){
+			printf("Y'a qu'un sommet la");
+		}else if(sommet->previous == NULL){ //si tete
+			if(sommet->point.y >= list->end->point.y)
+				return 1;
+			if(sommet->point.y >= sommet->next->point.y)
+				return 1;
+		}else if(sommet->next == NULL){//si queue
+			if(sommet->point.y >= sommet->previous->point.y)
+				return 1;
+			if(sommet->point.y >= list->head->point.y)
+				return 1;
+		}
+		else{
+			if(sommet->point.y >= sommet->previous->point.y)
+				return 1;
+			if(sommet->point.y >= sommet->next->point.y)
+				return 1;
+		}
+		return 0;
+	}else
+		return 0;
+
+}
+
+int isSameAbscisseAsSommet(ListePoints* list,int x){
+	if(list == NULL){
+		return 0;
+	}
+	Points* tmp = list->head;
+
+	while(tmp != NULL){
+		if(tmp->point.x == x)
+			return 1;
+		tmp = tmp->next;
+	}
+
+	return 0;
+}
+
+/*
+3.2
+void fill(Image *img,ListePoints* list){
+	Point boundingBox[2];
+	FindBoundingBox(list,boundingBox);
+	for(int j = boundingBox[0].y; j <= boundingBox[1].y ; j++){
+		for(int i = boundingBox[0].x; i <= boundingBox[1].x ; i++){
+			Point actuel = P_new(i,j);
+			if(InterieurPloygone(img,list,actuel,boundingBox[1].x)){
+				I_plot(img,i,j);
+			}
+		}
+	}
+}*/
+
+/* 3.3 1)
+void fill(Image *img,ListePoints* list){
+	Point boundingBox[2];
+	FindBoundingBox(list,boundingBox);
+	int Xintersect[100];
+	for(int j = boundingBox[0].y; j <= boundingBox[1].y ; j++){
+		int index = 0;
+		//On regarde les intersections sur cette scan-ligne
+		for(int i = boundingBox[0].x; i <= boundingBox[1].x ; i++){
+			if(!equalColor(img->_buffer[i][j],C_new(0.f,0.f,0.f))){
+				Points* sommet = isVertex(list,i,j);
+				if(sommet != NULL){
+					//Interescte ailleur que l'extremité superieur
+					if(IntersectSuperieur(list,sommet)){
+						Xintersect[index] = i;
+						index++;
+					}
+				}else{
+					Xintersect[index] = i;
+					index++;
+				}
+				//Evite quand une ligne est sur plusieurs pixel
+				while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
+					i++;
+				}
+			}
+		}
+		int est_allume = 0;
+		for(int x = boundingBox[0].x; x <= boundingBox[1].x ; x++ ){
+			for(int k = 0;k<index;k++){
+				if(Xintersect[k] == x){
+					est_allume = !est_allume;
+				}
+			}
+
+			if(est_allume){
+				I_plot(img,x,j);
+			}
+		}
+	}
+}*/
+
+void fill(Image *img,ListePoints* list){
+	Point boundingBox[2];
+	FindBoundingBox(list,boundingBox);
+	int Xintersect[100];
+	for(int j = boundingBox[0].y; j <= boundingBox[1].y ; j++){
+		int index = 0;
+		//On regarde les intersections sur cette scan-ligne
+		for(int i = boundingBox[0].x; i <= boundingBox[1].x ; i++){
+			if(!equalColor(img->_buffer[i][j],C_new(0.f,0.f,0.f))){
+				Points* sommet = isVertex(list,i,j);
+				if(sommet != NULL){
+					//Interescte ailleur que l'extremité superieur
+					if(IntersectSuperieur(list,sommet)){
+						Xintersect[index] = i;
+						index++;
+					}
+				}else{
+					Xintersect[index] = i;
+					index++;
+				}
+				//Evite quand une ligne est sur plusieurs pixel
+				while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
+					i++;
+				}
+			}
+		}
+		int est_allume = 0;
+		for(int x = boundingBox[0].x; x <= boundingBox[1].x ; x++ ){
+			for(int k = 0;k<index;k++){
+				if(Xintersect[k] == x){
+					est_allume = !est_allume;
+				}
+			}
+
+			if(est_allume){
+				I_plot(img,x,j);
+			}
+		}
+	}
+}
 
 //Probleme quand un sommet est sur plusieurs pixel
 //Sommet sur l'horizontale vérifier que les précédents et suivant sont de chaque coté
@@ -503,19 +688,19 @@ void fillByScanLine(Image *img,ListePoints* list){
 }
 
 //Verifie que le point donné est un somet de la liste
-int isVertex(ListePoints* list, int x, int y){
+Points* isVertex(ListePoints* list, int x, int y){
 	if(list == NULL){
-		return 0;
+		return NULL;
 	}
 	Points* tmp = list->head;
 
 	while(tmp != NULL){
 		if(tmp->point.x == x && tmp->point.y == y)
-			return 1;
+			return tmp;
 		tmp = tmp->next;
 	}
 
-	return 0;
+	return NULL;
 }
 
 //------------------ Insert et Suppr Sommets ------------------

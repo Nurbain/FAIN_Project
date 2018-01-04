@@ -52,6 +52,13 @@ typedef struct str_ListePoint{
   struct str_points* end;
 } ListePoints;
 
+typedef struct str_arrete{
+	Point Pmin;
+	Point Pmax;
+	int x_inters;
+	int inc;
+} arete;
+
 //Création d'un point
 Point P_new(int x, int y);
 
@@ -87,9 +94,17 @@ int equalColor(Color c1, Color c2);
 //Trouve la boundingBox du polygone
 void FindBoundingBox(ListePoints* list, Point* boundingBox);
 
+int InterieurPloygone(Image *img,ListePoints* list, Point p, int xMax);
+
+int IntersectSuperieur(ListePoints* list, Points* sommet);
+
+int isSameAbscisseAsSommet(ListePoints* list,int x);
+
+void fill(Image *img,ListePoints* list);
+
 void fillByScanLine(Image *img, ListePoints* list);
 
-int isVertex(ListePoints* list, int x, int y);
+Points* isVertex(ListePoints* list, int x, int y);
 
 //------------------ Insert et Suppr Sommets ------------------
 // Utilisation d'une liste doublement chainé

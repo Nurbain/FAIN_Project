@@ -91,6 +91,8 @@ void DrawAllListPoints(Image *img, ListePoints* list);
 //------------------ Remplissage scan-line ------------------
 int equalColor(Color c1, Color c2);
 
+void trierTab(int tab[], int lenght);
+
 //Trouve la boundingBox du polygone
 void FindBoundingBox(ListePoints* list, Point* boundingBox);
 

@@ -442,6 +442,18 @@ int equalColor(Color c1, Color c2){
 	else return 1;
 }
 
+void trierTab(int tab[], int lenght){
+	for(int i=0;i<lenght;i++){
+		for(int j=i+1;j<lenght;j++){
+			if(tab[j]<tab[i]){
+				int tmp = tab[i];
+				tab[i] = tab[j];
+				tab[j] = tmp;
+			}
+		}
+	}
+}
+
 //Trouve la boundingBox du polygone
 void FindBoundingBox(ListePoints* list, Point* boundingBox){
 	if(list == NULL){
@@ -626,32 +638,36 @@ void fill(Image *img,ListePoints* list){
 		//On regarde les intersections sur cette scan-ligne
 		for(int i = boundingBox[0].x; i <= boundingBox[1].x ; i++){
 			if(!equalColor(img->_buffer[i][j],C_new(0.f,0.f,0.f))){
-				Points* sommet = isVertex(list,i,j);
-				if(sommet != NULL){
-					//Interescte ailleur que l'extremité superieur
-					if(IntersectSuperieur(list,sommet)){
-						Xintersect[index] = i;
-						index++;
+				//Save i pour si il n'y a pas de sommet
+				int tmpI = i;
+				int haveSommetInLine = 0;
+				//Evite les pixels avant un sommet
+				while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
+					Points* sommet = isVertex(list,i,j);
+					if(sommet != NULL){
+						if(!IntersectSuperieur(list,sommet)){
+							Xintersect[index] = i;
+							index++;
+						}
+						haveSommetInLine = 1;
 					}
-				}else{
-					Xintersect[index] = i;
-					index++;
+					i++;
 				}
-				//Evite quand une ligne est sur plusieurs pixel
+				if(!haveSommetInLine){
+					Xintersect[index] = tmpI;
+					index++;
+					i = tmpI;
+				}
 				while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
 					i++;
 				}
 			}
 		}
-		int est_allume = 0;
-		for(int x = boundingBox[0].x; x <= boundingBox[1].x ; x++ ){
-			for(int k = 0;k<index;k++){
-				if(Xintersect[k] == x){
-					est_allume = !est_allume;
-				}
-			}
+		trierTab(Xintersect,index);
 
-			if(est_allume){
+		int demi_inters = index / 2 ;
+		for(int k=0;k<demi_inters;k++){
+			for(int x = Xintersect[2*k];x<=Xintersect[2*k+1];x++){
 				I_plot(img,x,j);
 			}
 		}

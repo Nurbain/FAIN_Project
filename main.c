@@ -322,7 +322,7 @@ void special_CB(int key, int x, int y)
 	// int mod = glutGetModifiers();
 
 	//int d = 10;
-
+  //TODO: Faire bouger quand fermé 
 	switch(key)
 	{
 	case GLUT_KEY_UP    :

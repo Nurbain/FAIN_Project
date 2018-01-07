@@ -925,16 +925,16 @@ void deselectSommet(Image* img,int x, int y,Color* save){
 void MooveSommet(Points* Actuel, int direction){
 	switch (direction) {
 		case 1:
-			Actuel->point.x = Actuel->point.x-1;
+			Actuel->point.x = Actuel->point.x-5;
 		break;
 		case 2:
-			Actuel->point.y = Actuel->point.y+1;
+			Actuel->point.y = Actuel->point.y+5;
 		break;
 		case 3:
-			Actuel->point.x = Actuel->point.x+1;
+			Actuel->point.x = Actuel->point.x+5;
 		break;
 		case 4:
-			Actuel->point.y = Actuel->point.y-1;
+			Actuel->point.y = Actuel->point.y-5;
 		break;
 	}
 }

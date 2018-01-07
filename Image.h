@@ -126,6 +126,8 @@ ListePoints* remove_Point(ListePoints* list, int x, int y);
 //Insert le sommet
 ListePoints* insert_Point(ListePoints* list, Points** edgePoint);
 
+//Free list
+void freeList(ListePoints** list);
 
 //------------------ Séléction par clavier ------------------
 
@@ -155,6 +157,7 @@ void selectEdge(Image* img,Points** edgePoint);
 Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y);
 
 void closestEdge(ListePoints* list, Points** edgePoint, int x, int y);
+
 
 //####################### MAGICS FONCTIONS ##############################
 

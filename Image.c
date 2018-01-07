@@ -390,6 +390,8 @@ void I_bresenham(Image *img, int xA, int yA, int xB, int yB) {
 			O1y++; d+= incrd2;
 		}
 	} while (O1x < O1xB);
+	I_bresenham1Oct_to_Z2(xA, yA, xB, yB, O1x, O1y, &x, &y);
+	I_plot(img, x, y);
 }
 
 //Dessine les droites de bresenham suivant un tableau de point donnés
@@ -489,36 +491,49 @@ int InterieurPloygone(Image *img,ListePoints* list, Point p, int xMax){
 	for(int i = p.x ; i <= xMax ; i++){
 		//Interescte un point autre que noir
 		if(!equalColor(img->_buffer[i][p.y],C_new(0.f,0.f,0.f))){
-			Points* sommet = isVertex(list, i, p.y);
-			// Interesction de sommet
-			if(sommet != NULL){
-				//2.3 document du prof
-				if(sommet->previous == NULL && sommet->next == NULL){
-					printf("Y'a qu'un sommet la");
-				}else if(sommet->previous == NULL){ //si tete
-					if(sommet->point.y >= list->end->point.y)
+			int haveSommetInLine = 0;
+				Points* sommet = isVertex(list, i, p.y);
+				// Interesction de sommet
+				if(sommet != NULL){
+					//2.3 document du prof
+					if(sommet->previous == NULL && sommet->next == NULL){
+						printf("Y'a qu'un sommet la");
+					}else if(sommet->previous == NULL){ //si tete
+						if(sommet->point.y >= list->end->point.y)
+							instersection++;
+						if(sommet->point.y >= sommet->next->point.y)
+							instersection++;
+					}else if(sommet->next == NULL){//si queue
+						if(sommet->point.y >= sommet->previous->point.y)
+							instersection++;
+						if(sommet->point.y >= list->head->point.y)
+							instersection++;
+					}
+					else{
+						if(sommet->point.y >= sommet->previous->point.y)
+							instersection++;
+						if(sommet->point.y >= sommet->next->point.y)
+							instersection++;
+					}
+					while(!equalColor(img->_buffer[i+1][p.y],C_new(0.f,0.f,0.f))){
+						i++;
+					}
+				}else{ // Interesection banal
+					//instersection++;
+					if(equalColor(img->_buffer[i+1][p.y],C_new(0.f,0.f,0.f))){
 						instersection++;
-					if(sommet->point.y >= sommet->next->point.y)
+					}else{
+					while(!equalColor(img->_buffer[i+1][p.y],C_new(0.f,0.f,0.f)) && haveSommetInLine==0){
+						Points* sommet = isVertex(list, i+1, p.y);
+						if(sommet != NULL)
+							haveSommetInLine = 1;
+						else
+							i++;
+					}
+					if(!haveSommetInLine)
 						instersection++;
-				}else if(sommet->next == NULL){//si queue
-					if(sommet->point.y >= sommet->previous->point.y)
-						instersection++;
-					if(sommet->point.y >= list->head->point.y)
-						instersection++;
+					}
 				}
-				else{
-					if(sommet->point.y >= sommet->previous->point.y)
-						instersection++;
-					if(sommet->point.y >= sommet->next->point.y)
-						instersection++;
-				}
-			}else // Interesection banale
-				instersection++;
-
-			//Evite quand une ligne est sur plusieurs pixel
-			while(!equalColor(img->_buffer[i+1][p.y],C_new(0.f,0.f,0.f))){
-				i++;
-			}
 		}
 
 	}
@@ -530,30 +545,31 @@ int InterieurPloygone(Image *img,ListePoints* list, Point p, int xMax){
 }
 
 int IntersectSuperieur(ListePoints* list, Points* sommet){
+	int res = 0;
 	if(sommet != NULL){
 		//2.3 document du prof
 		if(sommet->previous == NULL && sommet->next == NULL){
 			printf("Y'a qu'un sommet la");
 		}else if(sommet->previous == NULL){ //si tete
-			if(sommet->point.y >= list->end->point.y)
-				return 1;
-			if(sommet->point.y >= sommet->next->point.y)
-				return 1;
+			if(sommet->point.y < list->end->point.y)
+				res = res + 1;
+			if(sommet->point.y < sommet->next->point.y)
+				res = res + 1;
 		}else if(sommet->next == NULL){//si queue
-			if(sommet->point.y >= sommet->previous->point.y)
-				return 1;
-			if(sommet->point.y >= list->head->point.y)
-				return 1;
+			if(sommet->point.y < sommet->previous->point.y)
+				res = res + 1;
+			if(sommet->point.y < list->head->point.y)
+				res = res + 1;
 		}
 		else{
-			if(sommet->point.y >= sommet->previous->point.y)
-				return 1;
-			if(sommet->point.y >= sommet->next->point.y)
-				return 1;
+			if(sommet->point.y < sommet->previous->point.y)
+				res = res + 1;
+			if(sommet->point.y < sommet->next->point.y)
+				res = res + 1;
 		}
-		return 0;
+		return res;
 	}else
-		return 0;
+		return res;
 
 }
 
@@ -572,9 +588,9 @@ int isSameAbscisseAsSommet(ListePoints* list,int x){
 	return 0;
 }
 
-/*
-3.2
-void fill(Image *img,ListePoints* list){
+
+//3.2
+/*void fill(Image *img,ListePoints* list){
 	Point boundingBox[2];
 	FindBoundingBox(list,boundingBox);
 	for(int j = boundingBox[0].y; j <= boundingBox[1].y ; j++){
@@ -587,7 +603,7 @@ void fill(Image *img,ListePoints* list){
 	}
 }*/
 
-/* 3.3 1)
+// 3.3 1)
 void fill(Image *img,ListePoints* list){
 	Point boundingBox[2];
 	FindBoundingBox(list,boundingBox);
@@ -597,23 +613,51 @@ void fill(Image *img,ListePoints* list){
 		//On regarde les intersections sur cette scan-ligne
 		for(int i = boundingBox[0].x; i <= boundingBox[1].x ; i++){
 			if(!equalColor(img->_buffer[i][j],C_new(0.f,0.f,0.f))){
-				Points* sommet = isVertex(list,i,j);
-				if(sommet != NULL){
-					//Interescte ailleur que l'extremité superieur
-					if(IntersectSuperieur(list,sommet)){
+				if(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
+					int hasAlreadyGotSmt = 0;
+					int basicIntersect = 0;
+					while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f)) && hasAlreadyGotSmt == 0){
+						Points* sommet = isVertex(list,i,j);
+						if(sommet != NULL){
+							//Interescte sommet mais pas l'extremité superieur
+							int res = IntersectSuperieur(list,sommet);
+							if(res%2 == 1){
+								Xintersect[index] = i;
+								index++;
+							}
+							hasAlreadyGotSmt = 1;
+						}else{
+							basicIntersect = 1;
+							i++;
+						}
+					}
+
+					if(basicIntersect == 1){
 						Xintersect[index] = i;
 						index++;
 					}
+
+					//Evite quand une ligne est sur plusieurs pixel
+					while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
+						i++;
+					}
 				}else{
-					Xintersect[index] = i;
-					index++;
-				}
-				//Evite quand une ligne est sur plusieurs pixel
-				while(!equalColor(img->_buffer[i+1][j],C_new(0.f,0.f,0.f))){
-					i++;
+					Points* sommet = isVertex(list,i,j);
+					if(sommet != NULL){
+						//Interescte sommet mais pas l'extremité superieur
+						int res = IntersectSuperieur(list,sommet);
+						if(res%2 == 1){
+							Xintersect[index] = i;
+							index++;
+						}
+					}else{
+						Xintersect[index] = i;
+						index++;
+					}
 				}
 			}
 		}
+
 		int est_allume = 0;
 		for(int x = boundingBox[0].x; x <= boundingBox[1].x ; x++ ){
 			for(int k = 0;k<index;k++){
@@ -627,9 +671,9 @@ void fill(Image *img,ListePoints* list){
 			}
 		}
 	}
-}*/
+}
 
-void fill(Image *img,ListePoints* list){
+/*void fill(Image *img,ListePoints* list){
 	Point boundingBox[2];
 	FindBoundingBox(list,boundingBox);
 	int Xintersect[100];
@@ -672,7 +716,7 @@ void fill(Image *img,ListePoints* list){
 			}
 		}
 	}
-}
+}*/
 
 //Probleme quand un sommet est sur plusieurs pixel
 //Sommet sur l'horizontale vérifier que les précédents et suivant sont de chaque coté
@@ -832,6 +876,18 @@ ListePoints* insert_Point(ListePoints* list, Points** edgePoint){
 	return list;
 }
 
+void freeList(ListePoints** list){
+	if(*list!=NULL){
+		Points* tmp = (*list)->head;
+		while(tmp!=NULL){
+			Points* del = tmp;
+			tmp = tmp->next;
+			free(del);
+		}
+		free(*list), list = NULL;
+	}
+}
+
 //------------------ Séléction par clavier ------------------
 #define Size_Select 3
 
@@ -840,6 +896,7 @@ ListePoints* insert_Point(ListePoints* list, Points** edgePoint){
 void selectSommet(Image* img,int x, int y, Color* save){
 	Color c = C_new(255.f, 0.f, 0.f);
 	int index = 0;
+	//I_plotColor(img,x,y,c);
 	for(int j=x-Size_Select; j<x+Size_Select;j++){
 		for(int i=y-Size_Select; i<y+Size_Select;i++){
 			save[index] = img->_buffer[j][i];
@@ -854,7 +911,7 @@ void deselectSommet(Image* img,int x, int y,Color* save){
 	if(save == NULL){
 		return;
 	}
-
+	//I_plotColor(img,x,y,C_new(1,1,1));
 	int index = 0;
 	for(int j=x-Size_Select ; j<x+Size_Select;j++){
 		for(int i=y-Size_Select; i<y+Size_Select;i++){
@@ -941,5 +998,33 @@ Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y){
 
 //Choisi la droite la plus pret d'un point
 void closestEdge(ListePoints* list, Points** edgePoint, int x, int y){
+	/*if(list == NULL || list->head == NULL){
+		return edgePoint;
+	}
+	Points[2] selectNewEdge;
+	Points* tmpA = list->head;
+	Points* tmpB = list->head->next;
 
+	while(tmpB->next != NULL){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	}
+
+	return selectNewEdge;*/
 }

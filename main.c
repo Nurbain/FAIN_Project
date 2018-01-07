@@ -91,6 +91,12 @@ void display_CB()
 void mouse_CB(int button, int state, int x, int y)
 {
 	if((button==GLUT_LEFT_BUTTON)&&(state==GLUT_DOWN)) {
+    //Si fermé alors on se remet sur une image propre
+    if(_isClosed){
+      _isClosed = !_isClosed;
+      DrawAllListPoints(img,PointsPolygone);
+    }
+
 		I_focusPoint(img,x,img->_height-y);
 		int tmp_x = x, tmp_y = img->_height-y;
 
@@ -139,7 +145,7 @@ void mouse_CB(int button, int state, int x, int y)
 void keyboard_CB(unsigned char key, int x, int y)
 {
   //TODO supression de selection tout le temps
-	fprintf(stderr,"key=%d\n",key);
+	//fprintf(stderr,"key=%d\n",key);
 	switch(key)
 	{
 	case 27 : exit(1); break;
@@ -155,6 +161,7 @@ void keyboard_CB(unsigned char key, int x, int y)
     if(_isClosed){
       DrawAllListPoints(img,PointsPolygone);
     }else{
+      DrawAllListPoints(img,PointsPolygone);
       DrawNewPoints(img,PointsPolygone,PointsPolygone->head->point.x,PointsPolygone->head->point.y);
     }
     _isClosed =! _isClosed ;
@@ -392,7 +399,6 @@ int _clamp(int x, int inf, int sup)
 
 int main(int argc, char **argv)
 {
-
 	if((argc!=3)&&(argc!=2))
 	{
 		fprintf(stderr,"\n\nUsage \t: %s <width> <height>\nou",argv[0]);
@@ -415,34 +421,6 @@ int main(int argc, char **argv)
 			hauteur = atoi(argv[2]);
 			img = I_new(largeur,hauteur);
 			img2 = I_new(largeur, hauteur);
-
-			/*Color rouge = C_new(100,0,0);
-			Color blanc = C_new(200,200,255);
-			I_checker(img,rouge,blanc,50);*/
-
-
-			/*
-			if(argc==3)
-			{
-				Color rouge = C_new(100,0,0);
-				Color blanc = C_new(200,200,255);
-				I_checker(img,rouge,blanc,50);
-			}
-			else
-			{
-				int xP = _clamp(atoi(argv[3]), 0, largeur);
-				int yP = _clamp(atoi(argv[4]), 0, hauteur);
-				if (argc==5) {
-					I_bresenhamOrigin(img, xP, yP);
-				}
-				else
-				{
-					int xQ = _clamp(atoi(argv[5]), 0, largeur);
-					int yQ = _clamp(atoi(argv[6]), 0, hauteur);
-					I_bresenham(img, xP, yP, xQ, yQ);
-				}
-			}
-			*/
 		}
 		int windowPosX = 900, windowPosY = 100;
 
@@ -467,10 +445,9 @@ int main(int argc, char **argv)
 		glutMouseFunc(mouse_CB);
 		// glutMotionFunc(mouse_move_CB);
 		// glutPassiveMotionFunc(passive_mouse_move_CB);
-
 		glutMainLoop();
 
-    //TODO FREE point Polygone
+    freeList(&PointsPolygone);
     free(ActualPoint);
     free(EdgeSelect[0]);
     free(EdgeSelect[1]);

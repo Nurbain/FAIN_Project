@@ -120,7 +120,10 @@ void mouse_CB(int button, int state, int x, int y)
       break;
 
       case EDGE :
-        printf("Séléection par souris des edges qui manque\n" );
+        I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
+        printf("clost \n");
+        closestEdge(PointsPolygone,EdgeSelect,tmp_x,tmp_y);
+        selectEdge(img,EdgeSelect);
       break;
     }
 
@@ -157,6 +160,8 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   //Close le polygone
   case 'c' :
+    if(PointsPolygone==NULL)
+      break;
 
     if(_isClosed){
       DrawAllListPoints(img,PointsPolygone);
@@ -322,7 +327,7 @@ void special_CB(int key, int x, int y)
 	// int mod = glutGetModifiers();
 
 	//int d = 10;
-  //TODO: Faire bouger quand fermé 
+  //TODO: Faire bouger quand fermé
 	switch(key)
 	{
 	case GLUT_KEY_UP    :

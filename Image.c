@@ -998,33 +998,49 @@ Points* closestVertex(ListePoints* list, Points* ActualPoint, int x, int y){
 
 //Choisi la droite la plus pret d'un point
 void closestEdge(ListePoints* list, Points** edgePoint, int x, int y){
-	/*if(list == NULL || list->head == NULL){
-		return edgePoint;
-	}
-	Points[2] selectNewEdge;
-	Points* tmpA = list->head;
-	Points* tmpB = list->head->next;
-
-	while(tmpB->next != NULL){
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 	if(list == NULL){
+		return;
 	}
 
-	return selectNewEdge;*/
+	Points *closestPoint = NULL;
+	closestPoint = closestVertex(list,closestPoint,x,y);
+	printf("X: %d  Y: %d\n", closestPoint->point.x,closestPoint->point.y);
+
+	float distPrev,distNext;
+	if(closestPoint->next == NULL && closestPoint->previous == NULL ){
+		return ;
+	}else if(closestPoint->next == NULL){
+		printf("queue \n");
+		distPrev = distanceVertex(P_new(x,y), closestPoint->previous->point);
+		distNext = distanceVertex(P_new(x,y), list->head->point);
+	}else if(closestPoint->previous == NULL){
+		printf("tete \n");
+		distPrev = distanceVertex(P_new(x,y), list->end->point);
+		distNext = distanceVertex(P_new(x,y), closestPoint->next->point);
+	}else{
+		printf("Normal \n");
+		distPrev = distanceVertex(P_new(x,y), closestPoint->previous->point);
+		distNext = distanceVertex(P_new(x,y), closestPoint->next->point);
+	}
+
+	printf("Check distance \n");
+	if(distPrev<distNext){
+		if(closestPoint->previous == NULL){
+			edgePoint[0]  = closestPoint;
+			edgePoint[1] 	= closestPoint->next;
+		}else{
+			edgePoint[0]  = closestPoint->previous;
+			edgePoint[1] 	= closestPoint;
+		}
+
+	}
+	else{
+		if(closestPoint->next == NULL){
+			edgePoint[0]  = closestPoint->previous;
+			edgePoint[1] 	= closestPoint;
+		}else{
+			edgePoint[0]  = closestPoint;
+			edgePoint[1] 	= closestPoint->next;
+		}
+	}
 }

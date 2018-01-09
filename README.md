@@ -1,53 +1,68 @@
-/*====================================================*\
-  Vendredi 8 novembre 2013
-  Arash HABIBI
-  README.txt
-\*====================================================*/
+# Projet de FAIN 
+## Manipulation/Création de droite de Bresenham 
+------------------------------------------------------------------
+### Compilation - Version 1.0
 
-Le programme plot permet de créer une image vierge et
-d'y colorier les pixels ou, éventuellement, de partir
-d'une image préexistant et de la modifier pixel par pixel.
+Compilation:
+>`make`
 
-Pour compiler le programme :
+Lancement: 
+>`plot largeur hauteur`       
 
-     make
+<br/><br/>
 
-Pour travailler sur une image 800 x 600 vierge (noire) :
+### Fonctionnalités
 
-     plot 800 600
+* **A** : Passe en mode "Append" pour rajouter des sommets par `clic gauche`
+  <br/>
+* **V** : Passe en mode "Vertex" pour activer les manipulations de sommets :
+  <br/><br/>
+  **_Touches Autorisées dans ce Mode_**
+  - **&**     : Séléctionne le sommet précédent
+  - **é**     : Séléctionne le sommet suivant
+  - **Suppr** : Supprime le somet séléctionné 
+  - *Flèches Directives*
+    - **Up** : Monte le sommet séléctionné
+    - **Down**: Descends le sommet séléctionné
+    - **Left**: Déplace vers la gauche le sommet séléctionné
+    - **Right**: Déplace vers la droite le sommet séléctionné
+      <br/>
+  
+  **_Manipulation Souris Autorisées dans ce Mode_**
+  
+  - **Clic Droit** : Séléctionne le sommet le plus proche du clic 
+  <br/>
+* **E** : Passe en mode "Edges" pour activer les manipulations d'arêtes :
+  <br/><br/>
+  **_Touches Autorisées dans ce Mode_**
+  - **&**     : Séléctionne l'arête précédente
+  - **é**     : Séléctionne l'arête suivante
+    <br/>
+  
+  **_Manipulation Souris Autorisées dans ce Mode_**
+  
+  - **Clic Droit** : Séléctionne l'arête la plus proche du clic 
+  - **Clic Milieu** : Coupe l’arête sélectionnée en deux en insérant un nouveau
+sommet entre ses extrémités
+  <br/>
+* **C** : Ferme la ligne brisé 
+* **F** : Remplie le polygone fermé par la méthode *scan-line*
+* **W** : Dessine une ligne suivant un tableau donnée en dure
+* **Z** : Zoom sur le dernier sommet ajouté 
+* **I** : Dézoome
 
-Pour travailler sur une image préexistant dans un fichier au format ppm :
 
-     plot image2.ppm
+### Exemple de Manipulation 
 
+IMG TODO
 
-Ce programme permet également d'examiner l'image en zoomant sur
-un détail en particulier. Pour cela, cliquer sur le détail en
-question et presser la touche 'z' (comme zoom) autant de fois que
-nécessaire. Pour s'éloigner, presser la touche 'Z' et pour revenir
-à l'état initial, presser 'i'.
+Lancement dans le répèrtoire courant: 
+>`./plot 800 800` 
 
-Par ailleurs, les fonctions qui sont à votre disposition pour modifier
-les images, sont dans le fichier Image.h. En particulier :
+Manip à la lettre TODO
 
-// Pour créer une image vierge
-Image* I_new(int _width, int _height);
+-----------------------------------------------------------------
 
-// Pour créer une image à partir d'un fichier ppm existant :
-Image* I_read(char *ppmfilename);
+### Details sur le code 
 
-// Pour remplir l'image avec la couleur c
-void I_fill       (Image *img, Color c);
-
-// Pour remplir l'image avec un damier dont les cases font step pixels
-// et sont de couleurs c1 et c2 :
-void I_checker    (Image *img, Color c1, Color c2, int step);
-
-// Change la couleur courante
-void I_changeColor(Image *img, Color c);
-
-// Colorie le pixel x,y avec la couleur courante
-void I_plot       (Image *img, int x, int y);
-
-// Colorie le pixel x,y avec la couleur c sans changer la couleur courante
-void I_plotColor  (Image *img, int x, int y, Color c);
+TODO

@@ -54,15 +54,39 @@ sommet entre ses extrémités
 
 ### Exemple de Manipulation 
 
-IMG TODO
+<img src="https://user-images.githubusercontent.com/11646693/34745675-945a79cc-f591-11e7-9119-63aeaf7792ab.png" width="400">
 
 Lancement dans le répèrtoire courant: 
 >`./plot 800 800` 
 
-Manip à la lettre TODO
+
+1. Cliqué sur l'image pour dessiner les points en commencent en haut a droite
+<img src="https://user-images.githubusercontent.com/11646693/34745837-2669f234-f592-11e7-8018-1dd03c4bf462.png" width="250">
+
+2. Passer en Mode Vertex **V** et séléctionné l'avant dernier point (l'angle concave) avec la souris ou les touches "&"/"é"
+3. Supprimer le avec **Suppr**
+<img src="https://user-images.githubusercontent.com/11646693/34745890-60dde204-f592-11e7-88c2-763dfdb1755d.png" width="250">
+
+4. Séléctionné le second sommet (toujours en partant d'en haut a droite 
+5. Descender le une quinzaine  de fois
+6. Fermé le polygone avec **C**
+<img src="https://user-images.githubusercontent.com/11646693/34745915-75ef28ec-f592-11e7-9b29-8e878741ec36.png" width="250">
+
+7. Remplissez le avec **F**
+<img src="https://user-images.githubusercontent.com/11646693/34745675-945a79cc-f591-11e7-9119-63aeaf7792ab.png" width="400">
+
+*Seul les étapes 1-6-7 sont obligatoire pour remplir un polygone mais cette manipulation est faite afin de découvrir la plupart des fonctionnalitées* 
+<br/>
+*Vous pouvez vous amuser par la suite avec les commandes décrites plus haut*
 
 -----------------------------------------------------------------
 
 ### Details sur le code 
 
-TODO
+- Codé en C
+- Liste Doublement chainé comme Structure utilisé pour le stockage de sommet 
+- La méthode de remplissage utilisé est *scan-line* avec une cohérence horizontale
+- Le carré de selection de sommet sauvgarde l'état de l'image avant son arrivé pour pouvoir redessiner les pixels aux bonnes quand on séléctionne un autre sommet (permet de ne pas tous redessiner a chaque fois)
+- Lorsque on doit supprimer des arêtes on n'efface seulement les arêtes concernées pour eviter de tout redessiner donc on trace une droite de breshenam mais noir 
+- L'arête crée lors de la fermeture n'existe pas dans la structure il a  donc était nécessaire de gérer les cas particuliers dans le code 
+

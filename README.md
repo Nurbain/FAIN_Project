@@ -90,3 +90,4 @@ Lancement dans le répèrtoire courant:
 - Lorsque on doit supprimer des arêtes on n'efface seulement les arêtes concernées pour eviter de tout redessiner donc on trace une droite de breshenam mais noir 
 - L'arête crée lors de la fermeture n'existe pas dans la structure il a  donc était nécessaire de gérer les cas particuliers dans le code 
 
+###Auteur : Nathan URBAIN

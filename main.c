@@ -1,23 +1,10 @@
-
-/*===============================================================*\
-
-    Vendredi 25 septembre 2013
-
-	Arash Habibi
-
-	main.c
-
-	Un programme equivalent à 02_glut.c et qui ne prend en compte
-	que trois événements pour quitter le programme.
-
-\*===============================================================*/
-
 #include <stdio.h>
 #include <GL/glut.h>
 #include <GL/gl.h>
 
 #include "Image.h"
 
+// Mode
 #define APPEND 0
 #define VERTEX 1
 #define EDGE 2
@@ -50,7 +37,7 @@ int _AllPoints[18] =
   388,96
 };
 
-// Structure utilisé
+// Structure utilisé, liste double chainé
 ListePoints* PointsPolygone;
 
 // Point de selection VERTEX
@@ -103,10 +90,12 @@ void mouse_CB(int button, int state, int x, int y)
     //DIFFERENT MODE
     switch (_state) {
       case APPEND :
+        //Si 1er clic alors on init la liste
         if(_isFirstClic) {
           PointsPolygone =  initListPoints();
           push_Back_Point(PointsPolygone,tmp_x,tmp_y);
         }else{
+          //On relie le nouveau point
           DrawNewPoints(img,PointsPolygone,tmp_x,tmp_y);
           push_Back_Point(PointsPolygone,tmp_x,tmp_y);
         }
@@ -114,6 +103,7 @@ void mouse_CB(int button, int state, int x, int y)
       break;
 
       case VERTEX :
+        //On deslectionne avant d'activer le nouveau
         deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         ActualPoint = closestVertex(PointsPolygone,ActualPoint,tmp_x,tmp_y);
         selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
@@ -121,7 +111,6 @@ void mouse_CB(int button, int state, int x, int y)
 
       case EDGE :
         I_bresenham(img,EdgeSelect[0]->point.x,EdgeSelect[0]->point.y,EdgeSelect[1]->point.x,EdgeSelect[1]->point.y);
-        printf("clost \n");
         closestEdge(PointsPolygone,EdgeSelect,tmp_x,tmp_y);
         selectEdge(img,EdgeSelect);
       break;
@@ -129,10 +118,14 @@ void mouse_CB(int button, int state, int x, int y)
 
 	}
 
+
   if((button==GLUT_MIDDLE_BUTTON)&&(state==GLUT_DOWN)) {
     if(_state == EDGE){
+      //Insertion du point
       insert_Point(PointsPolygone,EdgeSelect);
+      //On redessine
       DrawAllListPoints(img,PointsPolygone);
+      //On active la nouvelle edge
       selectEdge(img,EdgeSelect);
     }
   }
@@ -147,8 +140,6 @@ void mouse_CB(int button, int state, int x, int y)
 
 void keyboard_CB(unsigned char key, int x, int y)
 {
-  //TODO supression de selection tout le temps
-	//fprintf(stderr,"key=%d\n",key);
 	switch(key)
 	{
 	case 27 : exit(1); break;
@@ -166,6 +157,7 @@ void keyboard_CB(unsigned char key, int x, int y)
     if(_isClosed){
       DrawAllListPoints(img,PointsPolygone);
     }else{
+      //On le ferme donc on dessine la liaison entre le 1er et dernier point
       DrawAllListPoints(img,PointsPolygone);
       DrawNewPoints(img,PointsPolygone,PointsPolygone->head->point.x,PointsPolygone->head->point.y);
     }
@@ -173,6 +165,7 @@ void keyboard_CB(unsigned char key, int x, int y)
   break;
 
   case 'f' :
+    //Autorise le remplissage si fermé
     if(_isClosed)
       fill(img,PointsPolygone);
     else
@@ -186,6 +179,10 @@ void keyboard_CB(unsigned char key, int x, int y)
 
   //Passe en mode "vertex"
   case 'v' :
+    if(PointsPolygone==NULL){
+      return;
+    }
+    //Reset la scene pour plus de visibilité
     if(!_isClosed)
       DrawAllListPoints(img,PointsPolygone);
     else{
@@ -196,20 +193,23 @@ void keyboard_CB(unsigned char key, int x, int y)
     if(PointsPolygone != NULL){
       _state = VERTEX;
     }
+    //Si aucune selection prend le 1er sommet
     if(ActualPoint == NULL)
       ActualPoint = PointsPolygone->head;
 
+    //Reselectione tjs le sommet de tete
     deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
     selectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
   break;
 
   //Passe en mode "edge"
   case 'e' :
-    //TODO SUppresion de point du coup faire gaffe faire une fonction find point
+    //Deslectionne le point pour ne pas avoir le carré de selection
     if(ActualPoint != NULL){
       deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
     }
 
+    //si fermé on le réouvre (choix personnel)
     if(_isClosed){
       DrawAllListPoints(img,PointsPolygone);
       _isClosed = !_isClosed;
@@ -218,7 +218,7 @@ void keyboard_CB(unsigned char key, int x, int y)
     _state = EDGE;
     if(EdgeSelect[0] != NULL && EdgeSelect[1] != NULL){
       selectEdge(img,EdgeSelect);
-    }
+    }//Selectionne les 2er pts si pas encore init
     else if(PointsPolygone->length >=2){
         EdgeSelect[0] = PointsPolygone->head;
         EdgeSelect[1] = PointsPolygone->head->next;
@@ -233,8 +233,10 @@ void keyboard_CB(unsigned char key, int x, int y)
       //Passe au sommet précedent
       case VERTEX :
 
+        //désélection avant
         deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
 
+        //Si fermé et arrive au dernier alors on reprend au début
         if(ActualPoint->previous == NULL){
           if(_isClosed){
             ActualPoint = PointsPolygone->end;
@@ -296,6 +298,15 @@ void keyboard_CB(unsigned char key, int x, int y)
         if(ActualPoint != NULL){
           deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
           remove_Point(PointsPolygone, ActualPoint->point.x,ActualPoint->point.y);
+          //Permet de ne pas avoir de sommet supprimé dans la selection d'arrete
+          if(EdgeSelect[0] != NULL && EdgeSelect[1] != NULL){
+            if(isOnEdgeSelect(ActualPoint,EdgeSelect)==1){
+              if(PointsPolygone->length >=2){
+                  EdgeSelect[0] = PointsPolygone->head;
+                  EdgeSelect[1] = PointsPolygone->head->next;
+              }
+            }
+          }
           DrawAllListPoints(img,PointsPolygone);
           if(PointsPolygone!=NULL){
             ActualPoint = PointsPolygone->head;
@@ -327,15 +338,16 @@ void special_CB(int key, int x, int y)
 	// int mod = glutGetModifiers();
 
 	//int d = 10;
-  //TODO: Faire bouger quand fermé
 	switch(key)
 	{
 	case GLUT_KEY_UP    :
     switch (_state) {
       case VERTEX:
+        //Deselecte pour ne pas avoir le carré de selection
         deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         I_bresenhamDelete(img,ActualPoint);
         MooveSommet(ActualPoint,2);
+        //Si cas particulier genre queue et tete
         if(ActualPoint->previous != NULL)
           I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
         if(ActualPoint->next != NULL)
@@ -343,14 +355,15 @@ void special_CB(int key, int x, int y)
       break;
     }
 
-  //I_move(img,0,d);
   break;
 	case GLUT_KEY_DOWN  :
     switch (_state) {
       case VERTEX:
+        //Deselecte pour ne pas avoir le carré de selection
         deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         I_bresenhamDelete(img,ActualPoint);
         MooveSommet(ActualPoint,4);
+        //Si cas particulier genre queue et tete
         if(ActualPoint->previous != NULL)
           I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
         if(ActualPoint->next != NULL)
@@ -358,27 +371,29 @@ void special_CB(int key, int x, int y)
       break;
     }
 
-  //I_move(img,0,-d);
   break;
 	case GLUT_KEY_LEFT  :
     switch (_state) {
       case VERTEX:
+        //Deselecte pour ne pas avoir le carré de selection
         deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         I_bresenhamDelete(img,ActualPoint);
         MooveSommet(ActualPoint,1);
+        //Si cas particulier genre queue et tete
         if(ActualPoint->previous != NULL)
           I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
         if(ActualPoint->next != NULL)
           I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
       break;
     }
-  //I_move(img,d,0);
   break;
 	case GLUT_KEY_RIGHT :
     switch (_state) {
       case VERTEX:
+        //Deselecte pour ne pas avoir le carré de selection
         deselectSommet(img,ActualPoint->point.x,ActualPoint->point.y,SaveSelection);
         I_bresenhamDelete(img,ActualPoint);
+        //Si cas particulier genre queue et tete
         MooveSommet(ActualPoint,3);
         if(ActualPoint->previous != NULL)
           I_bresenham(img,ActualPoint->previous->point.x,ActualPoint->previous->point.y,ActualPoint->point.x,ActualPoint->point.y);
@@ -386,7 +401,6 @@ void special_CB(int key, int x, int y)
           I_bresenham(img,ActualPoint->next->point.x,ActualPoint->next->point.y,ActualPoint->point.x,ActualPoint->point.y);
       break;
     }
-  //I_move(img,-d,0); break;
   break;
 	default : fprintf(stderr,"special_CB : %d : unknown key.\n",key);
 	}

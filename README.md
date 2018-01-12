@@ -63,7 +63,7 @@ Lancement dans le répèrtoire courant:
 1. Cliqué sur l'image pour dessiner les points en commencent en haut a droite
 <img src="https://user-images.githubusercontent.com/11646693/34745837-2669f234-f592-11e7-8018-1dd03c4bf462.png" width="250">
 
-2. Passer en Mode Vertex **V** et séléctionné l'avant dernier point (l'angle concave) avec la souris ou les touches "&"/"é"
+2. Passer en Mode Vertex **V** et séléctionné l'avant dernier point (l'angle concave) avec la souris ou les touches **&**/**é**
 3. Supprimer le avec **Suppr**
 <img src="https://user-images.githubusercontent.com/11646693/34745890-60dde204-f592-11e7-88c2-763dfdb1755d.png" width="250">
 
@@ -85,9 +85,11 @@ Lancement dans le répèrtoire courant:
 
 - Codé en C
 - Liste Doublement chainé comme Structure utilisé pour le stockage de sommet 
-- La méthode de remplissage utilisé est *scan-line* avec une cohérence horizontale
-- Le carré de selection de sommet sauvgarde l'état de l'image avant son arrivé pour pouvoir redessiner les pixels aux bonnes quand on séléctionne un autre sommet (permet de ne pas tous redessiner a chaque fois)
+- La méthode de remplissage utilisé est *scan-line* :
+  - Méthode avec une cohérence horizontale. Tout d'abord on crée une bounding box autour du polygone crée. On parcourt ensuite chaque ligne en stockant le nombre d'intersections avec une arête ou sommet en partant des extrimités de la BoundingBox. On compte comme interséction en sommet seulement ceux qui en l'extrimité *Y* sont inferieurs ou égaux aux *Y* des sommets entourant le 1er. Ensuite on parcourt chaque point si le point est égal à un des points stockés précédemment on regarde si on doit : soit dessiner soit arrêter de dessiner suivant une variable qui change à chaque croisement de point d'intersection.
+
+- Le carré de selection de sommet sauvgarde l'état de l'image avant son arrivé pour pouvoir redessiner les pixels aux bonnes couleurs quand on séléctionne un autre sommet (permet de ne pas tous redessiner à chaque fois)
 - Lorsque on doit supprimer des arêtes on n'efface seulement les arêtes concernées pour eviter de tout redessiner donc on trace une droite de breshenam mais noir 
-- L'arête crée lors de la fermeture n'existe pas dans la structure il a  donc était nécessaire de gérer les cas particuliers dans le code 
+- L'arête crée lors de la fermeture n'existe pas dans la structure il a  donc était nécessaire de gérer les cas particuliers dans le code pour son affichage
 
 ### Auteur : Nathan URBAIN
